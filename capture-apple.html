@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orgvue Menu - Apple Subtractive</title>
+<style>
+
+@font-face { font-family: arboria; src: url(fonts/arboria-book.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: arboria; src: url(fonts/arboria-medium.woff2) format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: archia; src: url(fonts/archia-regular.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: archia; src: url(fonts/archia-semibold.woff2) format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: archia, -apple-system, sans-serif; background: #f5f5f7; }
+
+.site-header { position: fixed; z-index: 20; top: 0; left: 0; width: 100%; background-color: #fff; border-bottom: 1px solid #e0e0e0; }
+.site-header__container { display: flex; align-items: center; height: 75px; max-width: 1440px; margin: 0 auto; padding: 0 24px; gap: 20px; }
+.site-branding__logo { height: 42px; width: 180px; }
+.site-branding__logo .fil0 { fill: #ff3349; }
+.site-branding__logo .fil1 { fill: #333; }
+.header-menu { display: flex; flex: 1; }
+.header-menu__container { width: 100%; }
+.header-menu__list { margin-left: 35px !important; display: flex; align-items: center; gap: 35px; margin: 0; padding: 0; list-style: none; }
+.megamenu__item.l-0 { list-style: none; display: flex; align-items: center; }
+.megamenu__section-heading { margin: 0; line-height: 1; }
+.megamenu__section-heading h2 { font-size: inherit; margin: 0; line-height: 1; }
+.megamenu__section-button { border: none; background: none; cursor: pointer; font-family: archia, sans-serif; font-weight: 400; color: #333; font-size: 1rem; letter-spacing: .54px; padding: .2em; padding-bottom: 6px; border-bottom: 3px solid transparent; position: relative; display: inline-flex; align-items: center; gap: 6px; }
+.megamenu__section-button::after { display: none; }
+.megamenu__section-button .chevron-down { width: 10px; height: 10px; flex-shrink: 0; }
+.megamenu__section-button[aria-expanded=true], .megamenu__section-button:hover { text-decoration: none; border-bottom: 3px solid #ff3349; padding-bottom: 6px; }
+.header-menu__link { font-family: archia, sans-serif; font-weight: 400; color: #333; text-decoration: none; font-size: 1rem; letter-spacing: .54px; padding: .2em; padding-bottom: 6px; border-bottom: 3px solid transparent; }
+.header-menu__link:hover { text-decoration: none; border-bottom: 3px solid #ff3349; padding-bottom: 6px; }
+.megamenu__button-primary { background: linear-gradient(135deg, #ff3349, #e8002a); box-shadow: 0 2px 8px rgba(255,51,73,.25); font-size: 1rem; padding: .7em 1.6em; border-radius: 3px; min-width: 140px; text-align: center; }
+.megamenu__button-primary a { color: #fff !important; font-weight: 700 !important; text-decoration: none; }
+.page-spacer { padding-top: 76px; height: 600px; background: #f5f5f7; }
+
+/* ── Apple: dark blurred overlay ── */
+.megamenu-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.48); z-index: 19; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); animation: overlayIn .3s ease; }
+.megamenu-overlay.is-visible { display: block; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Panel wrapper + panel ── */
+.megamenu-panels-wrapper { position: fixed; left: 0; right: 0; z-index: 21; pointer-events: none; }
+.megamenu-panel { display: none; background: linear-gradient(180deg, #fff 0%, #faf8fc 100%); pointer-events: auto; width: 100%; border-top: 3px solid transparent; border-image: linear-gradient(90deg, #ff3349, #5a0084) 1; animation: appleSlide .35s cubic-bezier(.25,.1,.25,1); }
+.megamenu-panel.is-visible { display: block; }
+@keyframes appleSlide { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Inner layout ── */
+.apple-inner { max-width: 1200px; margin: 0 auto; padding: 48px 48px 56px; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; min-height: 300px; }
+.apple-inner--narrow { grid-template-columns: 1fr; max-width: 600px; gap: 0; }
+
+/* ── Links (large, restrained typography) ── */
+.apple-links { display: flex; flex-direction: column; gap: 0; }
+.apple-links h3 { font-family: archia, sans-serif; font-size: .65rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 1.6px; margin: 0 0 20px 0; }
+.apple-link { font-family: arboria, sans-serif; font-size: 1.5rem; font-weight: 400; color: #1a1a1a; text-decoration: none; padding: 10px 0; transition: color .15s; display: block; line-height: 1.3; letter-spacing: -.01em; }
+.apple-link:hover { color: #5a0084; transform: translateX(4px); }
+.apple-link .apple-link-sub { display: block; font-family: archia, sans-serif; font-size: .78rem; font-weight: 400; color: #999; margin-top: 2px; letter-spacing: 0; transition: color .15s; }
+.apple-link:hover .apple-link-sub { color: #8e5aab; }
+.apple-sep { height: 2px; background: linear-gradient(90deg, #5a0084 0%, transparent 100%); margin: 20px 0; opacity: .3; }
+.apple-actions { display: flex; gap: 24px; margin-top: 20px; }
+.apple-action { font-family: archia, sans-serif; font-size: .82rem; font-weight: 600; color: #5a0084; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+.apple-action::after { content: " \2192"; transition: transform .15s; }
+.apple-action:hover::after { transform: translateX(3px); }
+.apple-links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; }
+.apple-links-grid .apple-link { font-size: 1.1rem; padding: 8px 0; }
+
+/* ── Visual / illustration area ── */
+.apple-visual { display: flex; align-items: center; justify-content: center; position: relative; min-height: 240px; }
+.apple-illustration { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .3s ease; }
+.apple-illustration.is-visible, .apple-illustration.is-default { opacity: 1; }
+.apple-illustration svg { width: 100%; max-width: 320px; height: auto; }
+</style>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+
+<header class="site-header" style="background: #ffffff !important; background-image: none !important;">
+<div class="site-header__container">
+<div class="site-branding">
+<a href="#">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" fill-rule="evenodd" class="site-branding__logo" width="180" height="42" clip-rule="evenodd" viewBox="0 0 10792 2556">
+<path d="m9695 612-299 187c69 124 108 267 108 418 0 152-39 294-108 418l299 187 956-552c41-24 41-82 0-106l-956-552zm-159-92L8768 77c-31-18-70-6-85 26-41 82-78 167-110 253-99 268-153 558-153 861l1116-697z" class="fil0"></path>
+<path d="M8420 1216c0 303 54 593 153 861 32 87 69 171 110 253 16 32 55 43 85 26l768-443-1116-697z" class="fil0"></path>
+<path d="M7299 832c173 0 294 102 324 269h-637c33-173 146-269 313-269zm19 755c-173 0-302-110-332-286h994l3-69c0-409-283-695-689-695-393 0-670 280-670 678 0 395 288 681 692 681 263 0 481-134 609-371l-312-104c-55 102-165 165-294 165zm-6503 0c-203 0-340-148-340-368 0-222 137-368 343-368 209 0 338 143 338 373 0 211-140 362-340 362zm3-1049c-412 0-695 277-695 681 0 395 288 678 689 678 390 0 695-294 695-667 0-401-288-692-689-692zm5326 849c0 135-77 217-206 217-126 0-211-96-211-239V582h-349v804c0 168 44 288 135 371 99 91 250 140 426 140 168 0 310-47 412-132 104-88 143-192 143-379V582h-349v804zm-1556-47-280-758h-362l458 1271h360l464-1271h-357zm-1186 129c-63 74-162 118-264 118-200 0-343-157-343-376 0-211 140-362 340-362 88 0 176 38 239 99 63 66 93 159 93 297 0 96-25 176-66 225zm71-730c-110-140-233-200-412-200-382 0-637 277-637 689 0 387 253 670 601 670 184 0 332-71 448-217v129c0 239-134 376-368 376-159 0-280-55-393-176l-217 220c173 170 376 253 623 253 217 0 404-69 527-192 121-118 170-269 170-530V583h-343v156zM2111 599c-52 38-77 77-113 170V582h-349v1271h349v-612c0-121 11-176 52-233 49-71 137-115 233-115 19 0 47 3 74 5V541c-19-3-33-3-41-3-77 0-151 22-206 60z" class="fil1"></path>
+</svg>
+</a>
+</div>
+<nav class="header-menu">
+<div class="header-menu__container"><ul id="menu-mega-menu" class="megamenu header-menu__list">
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-whyorgvue">Why Orgvue <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-platform">Platform <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-solutions">Solutions <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-ai">AI <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-customers">Customers <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-resources">Resources <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0" style="flex-grow:1"></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><a href="#" class="header-menu__link megamenu__section-button" style="cursor:pointer;" data-closemega="true">Login</a></h2></li>
+<li class="megamenu__button-primary megamenu__item l-0"><a href="#">Get a demo</a></li>
+</ul></div></nav>
+</div>
+</header>
+
+<div class="megamenu-overlay" id="megamenu-overlay"></div>
+
+<div class="megamenu-panels-wrapper" id="panels-wrapper">
+
+  <!-- WHY ORGVUE -->
+  <div class="megamenu-panel" id="panel-whyorgvue">
+    <div class="apple-inner">
+      <div class="apple-links">
+        <a class="apple-link" href="#" data-illus="illus-why-1">Workforce Transform Leadership<span class="apple-link-sub">Lead change with workforce intelligence</span></a>
+        <a class="apple-link" href="#" data-illus="illus-why-2">Platform Advantages<span class="apple-link-sub">What sets Orgvue apart</span></a>
+        <div class="apple-sep"></div>
+        <a class="apple-link" href="#">About Orgvue</a>
+        <a class="apple-link" href="#">Meet the team</a>
+        <a class="apple-link" href="#">Careers</a>
+        <div class="apple-actions">
+          <a class="apple-action" href="#">News &amp; Media</a>
+          <a class="apple-action" href="#">Contact</a>
+          <a class="apple-action" href="#">Legal</a>
+        </div>
+      </div>
+      <div class="apple-visual">
+        <div class="apple-illustration is-default" id="illus-why-1">
+          <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="60" width="280" height="120" rx="16" fill="#f5f0fa"/>
+            <circle cx="80" cy="100" r="24" fill="#5a0084" opacity=".15"/>
+            <circle cx="160" cy="100" r="24" fill="#5a0084" opacity=".25"/>
+            <circle cx="240" cy="100" r="24" fill="#5a0084" opacity=".4"/>
+            <line x1="104" y1="100" x2="136" y2="100" stroke="#5a0084" stroke-width="2" opacity=".3"/>
+            <line x1="184" y1="100" x2="216" y2="100" stroke="#5a0084" stroke-width="2" opacity=".3"/>
+            <text x="160" y="155" text-anchor="middle" font-family="arboria,sans-serif" font-size="11" fill="#5a0084" opacity=".6">Workforce transformation flow</text>
+          </svg>
+        </div>
+        <div class="apple-illustration" id="illus-why-2">
+          <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+            <rect x="40" y="40" width="240" height="160" rx="12" fill="#f5f0fa" stroke="#5a0084" stroke-width="1" opacity=".4"/>
+            <rect x="60" y="60" width="80" height="50" rx="8" fill="#5a0084" opacity=".12"/>
+            <rect x="160" y="60" width="100" height="50" rx="8" fill="#5a0084" opacity=".08"/>
+            <rect x="60" y="125" width="200" height="12" rx="4" fill="#5a0084" opacity=".1"/>
+            <rect x="60" y="145" width="140" height="12" rx="4" fill="#5a0084" opacity=".06"/>
+            <circle cx="260" cy="180" r="6" fill="#ff3349" opacity=".5"/>
+            <text x="160" y="220" text-anchor="middle" font-family="arboria,sans-serif" font-size="11" fill="#5a0084" opacity=".6">The Orgvue platform</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLATFORM -->
+  <div class="megamenu-panel" id="panel-platform">
+    <div class="apple-inner">
+      <div class="apple-links">
+        <h3>Platform</h3>
+        <a class="apple-link" href="#" data-illus="illus-plat-1">Platform Overview<span class="apple-link-sub">See the full picture of your organization</span></a>
+        <a class="apple-link" href="#" data-illus="illus-plat-2">Platform Features</a>
+        <a class="apple-link" href="#" data-illus="illus-plat-3">AI Capabilities<span class="apple-link-sub">AI-powered analysis and insights</span></a>
+        <a class="apple-link" href="#">Organization Modeling</a>
+        <a class="apple-link" href="#">Data integration</a>
+        <a class="apple-link" href="#">Security &amp; Trust</a>
+      </div>
+      <div class="apple-visual">
+        <div class="apple-illustration is-default" id="illus-plat-1">
+          <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+            <rect x="30" y="30" width="260" height="180" rx="16" fill="#f5f0fa"/>
+            <circle cx="100" cy="90" r="20" fill="#5a0084" opacity=".2"/>
+            <circle cx="160" cy="70" r="14" fill="#5a0084" opacity=".15"/>
+            <circle cx="220" cy="95" r="18" fill="#5a0084" opacity=".25"/>
+            <line x1="100" y1="110" x2="100" y2="140" stroke="#5a0084" stroke-width="1.5" opacity=".2"/>
+            <line x1="160" y1="84" x2="160" y2="140" stroke="#5a0084" stroke-width="1.5" opacity=".2"/>
+            <line x1="220" y1="113" x2="220" y2="140" stroke="#5a0084" stroke-width="1.5" opacity=".2"/>
+            <rect x="70" y="140" width="180" height="40" rx="8" fill="#5a0084" opacity=".08"/>
+            <text x="160" y="165" text-anchor="middle" font-family="archia,sans-serif" font-size="10" fill="#5a0084" opacity=".5">Org structure overview</text>
+          </svg>
+        </div>
+        <div class="apple-illustration" id="illus-plat-2">
+          <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+            <rect x="40" y="50" width="100" height="60" rx="10" fill="#5a0084" opacity=".1"/>
+            <rect x="160" y="50" width="100" height="60" rx="10" fill="#ff3349" opacity=".1"/>
+            <rect x="40" y="130" width="100" height="60" rx="10" fill="#ff3349" opacity=".08"/>
+            <rect x="160" y="130" width="100" height="60" rx="10" fill="#5a0084" opacity=".12"/>
+            <text x="160" y="225" text-anchor="middle" font-family="archia,sans-serif" font-size="10" fill="#5a0084" opacity=".5">Feature grid</text>
+          </svg>
+        </div>
+        <div class="apple-illustration" id="illus-plat-3">
+          <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="160" cy="110" r="60" fill="none" stroke="#5a0084" stroke-width="1.5" opacity=".2"/>
+            <circle cx="160" cy="110" r="40" fill="none" stroke="#5a0084" stroke-width="1.5" opacity=".3"/>
+            <circle cx="160" cy="110" r="20" fill="#5a0084" opacity=".15"/>
+            <circle cx="160" cy="110" r="6" fill="#5a0084" opacity=".5"/>
+            <line x1="160" y1="50" x2="160" y2="70" stroke="#ff3349" stroke-width="2" opacity=".4"/>
+            <line x1="220" y1="110" x2="200" y2="110" stroke="#ff3349" stroke-width="2" opacity=".4"/>
+            <line x1="160" y1="150" x2="160" y2="170" stroke="#ff3349" stroke-width="2" opacity=".4"/>
+            <line x1="100" y1="110" x2="120" y2="110" stroke="#ff3349" stroke-width="2" opacity=".4"/>
+            <text x="160" y="200" text-anchor="middle" font-family="archia,sans-serif" font-size="10" fill="#5a0084" opacity=".5">AI-powered insights</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOLUTIONS -->
+  <div class="megamenu-panel" id="panel-solutions">
+    <div class="apple-inner">
+      <div class="apple-links">
+        <h3>Solutions</h3>
+        <div class="apple-links-grid">
+          <a class="apple-link" href="#">Organizational Design</a>
+          <a class="apple-link" href="#">Organization Analysis</a>
+          <a class="apple-link" href="#">Strategic Workforce Planning</a>
+          <a class="apple-link" href="#">Skills Gap Analysis</a>
+          <a class="apple-link" href="#">Workforce Restructuring</a>
+          <a class="apple-link" href="#">Talent Intelligence</a>
+          <a class="apple-link" href="#">Cost Reduction</a>
+          <a class="apple-link" href="#">Data Harmonization</a>
+          <a class="apple-link" href="#">Mergers &amp; Acquisitions</a>
+          <a class="apple-link" href="#">Organization Modeling</a>
+        </div>
+        <div class="apple-actions" style="margin-top:24px">
+          <a class="apple-action" href="#">View all solutions</a>
+          <a class="apple-action" href="#">Browse by role</a>
+          <a class="apple-action" href="#">Browse by industry</a>
+        </div>
+      </div>
+      <div class="apple-visual">
+        <div class="apple-illustration is-default">
+          <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="30" width="280" height="180" rx="16" fill="#f5f0fa"/>
+            <rect x="40" y="55" width="60" height="8" rx="4" fill="#5a0084" opacity=".2"/>
+            <rect x="40" y="75" width="100" height="6" rx="3" fill="#5a0084" opacity=".1"/>
+            <rect x="40" y="95" width="80" height="6" rx="3" fill="#5a0084" opacity=".1"/>
+            <rect x="40" y="115" width="90" height="6" rx="3" fill="#5a0084" opacity=".1"/>
+            <rect x="160" y="50" width="120" height="80" rx="10" fill="#5a0084" opacity=".08"/>
+            <circle cx="220" cy="90" r="20" fill="#5a0084" opacity=".12"/>
+            <rect x="40" y="145" width="240" height="40" rx="8" fill="#ff3349" opacity=".06"/>
+            <text x="160" y="170" text-anchor="middle" font-family="archia,sans-serif" font-size="10" fill="#ff3349" opacity=".5">Find your solution</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI -->
+  <div class="megamenu-panel" id="panel-ai">
+    <div class="apple-inner">
+      <div class="apple-links">
+        <a class="apple-link" href="#" data-illus="illus-ai-1" style="font-size:1.8rem">AI in Orgvue<span class="apple-link-sub">AI-powered analysis and insights</span></a>
+        <a class="apple-link" href="#" data-illus="illus-ai-2" style="font-size:1.8rem">AI &amp; Workforce Transformation<span class="apple-link-sub">Transform your workforce with AI</span></a>
+        <a class="apple-link" href="#" data-illus="illus-ai-3" style="font-size:1.8rem">AI Insights<span class="apple-link-sub">Data-driven organizational intelligence</span></a>
+        <div class="apple-actions" style="margin-top:24px">
+          <a class="apple-action" href="#">Explore AI capabilities</a>
+        </div>
+      </div>
+      <div class="apple-visual">
+        <div class="apple-illustration is-default" id="illus-ai-1">
+          <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="160" cy="100" r="70" fill="none" stroke="#5a0084" stroke-width="1" opacity=".15"/>
+            <circle cx="160" cy="100" r="50" fill="none" stroke="#5a0084" stroke-width="1" opacity=".2"/>
+            <circle cx="160" cy="100" r="30" fill="none" stroke="#5a0084" stroke-width="1.5" opacity=".3"/>
+            <circle cx="160" cy="100" r="10" fill="#5a0084" opacity=".4"/>
+            <circle cx="110" cy="60" r="4" fill="#ff3349" opacity=".6"/>
+            <circle cx="210" cy="70" r="4" fill="#ff3349" opacity=".6"/>
+            <circle cx="200" cy="140" r="4" fill="#ff3349" opacity=".6"/>
+            <circle cx="120" cy="145" r="4" fill="#ff3349" opacity=".6"/>
+            <text x="160" y="200" text-anchor="middle" font-family="arboria,sans-serif" font-size="12" fill="#5a0084" opacity=".5">Henshaw AI</text>
+          </svg>
+        </div>
+        <div class="apple-illustration" id="illus-ai-2">
+          <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+            <path d="M60 160 L120 80 L180 120 L240 50 L280 70" fill="none" stroke="#5a0084" stroke-width="2.5" opacity=".3" stroke-linecap="round"/>
+            <circle cx="120" cy="80" r="5" fill="#5a0084" opacity=".5"/>
+            <circle cx="180" cy="120" r="5" fill="#5a0084" opacity=".5"/>
+            <circle cx="240" cy="50" r="5" fill="#ff3349" opacity=".6"/>
+            <rect x="40" y="175" width="240" height="6" rx="3" fill="#5a0084" opacity=".08"/>
+            <text x="160" y="210" text-anchor="middle" font-family="arboria,sans-serif" font-size="11" fill="#5a0084" opacity=".5">AI-driven transformation</text>
+          </svg>
+        </div>
+        <div class="apple-illustration" id="illus-ai-3">
+          <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+            <rect x="50" y="140" width="30" height="40" rx="4" fill="#5a0084" opacity=".15"/>
+            <rect x="95" y="110" width="30" height="70" rx="4" fill="#5a0084" opacity=".2"/>
+            <rect x="140" y="80" width="30" height="100" rx="4" fill="#5a0084" opacity=".25"/>
+            <rect x="185" y="60" width="30" height="120" rx="4" fill="#5a0084" opacity=".3"/>
+            <rect x="230" y="90" width="30" height="90" rx="4" fill="#ff3349" opacity=".25"/>
+            <text x="160" y="210" text-anchor="middle" font-family="arboria,sans-serif" font-size="11" fill="#5a0084" opacity=".5">Organizational insights</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div class="megamenu-panel" id="panel-customers">
+    <div class="apple-inner apple-inner--narrow">
+      <div class="apple-links">
+        <a class="apple-link" href="#" style="font-size:1.4rem">For existing clients</a>
+        <a class="apple-link" href="#" style="font-size:1.4rem">Case studies</a>
+        <div class="apple-sep"></div>
+        <h3 style="font-family:archia,sans-serif;font-size:.65rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1.6px;margin:0 0 12px">Industries</h3>
+        <a class="apple-link" href="#" style="font-size:1.1rem">Consumer Products</a>
+        <a class="apple-link" href="#" style="font-size:1.1rem">Energy and Resources</a>
+        <a class="apple-link" href="#" style="font-size:1.1rem">Financial Services</a>
+        <a class="apple-link" href="#" style="font-size:1.1rem">Life Sciences</a>
+        <a class="apple-link" href="#" style="font-size:1.1rem">Media and Entertainment</a>
+        <a class="apple-link" href="#" style="font-size:1.1rem">Retail</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="megamenu-panel" id="panel-resources">
+    <div class="apple-inner apple-inner--narrow">
+      <div class="apple-links">
+        <a class="apple-link" href="#" style="font-size:1.4rem">Articles</a>
+        <a class="apple-link" href="#" style="font-size:1.4rem">Videos</a>
+        <a class="apple-link" href="#" style="font-size:1.4rem">Ebooks &amp; Guides</a>
+        <a class="apple-link" href="#" style="font-size:1.4rem">Webinars &amp; Events</a>
+        <a class="apple-link" href="#" style="font-size:1.4rem">Whitepapers &amp; Reports</a>
+        <a class="apple-link" href="#" style="font-size:1.4rem">Self-Assessments</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-spacer"></div>
+
+<script>
+(function() {
+  var buttons = document.querySelectorAll('.megamenu__section-button[data-panel]');
+  var overlay = document.getElementById('megamenu-overlay');
+  var wrapper = document.getElementById('panels-wrapper');
+  var panels = document.querySelectorAll('.megamenu-panel');
+  var activePanel = null;
+
+  function positionWrapper() {
+    var header = document.querySelector('.site-header');
+    if (header) { wrapper.style.top = header.getBoundingClientRect().bottom + 'px'; }
+  }
+  positionWrapper();
+  window.addEventListener('resize', positionWrapper);
+  window.addEventListener('scroll', positionWrapper);
+
+  function closeAll() {
+    panels.forEach(function(p) { p.classList.remove('is-visible'); });
+    buttons.forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+    overlay.classList.remove('is-visible');
+    activePanel = null;
+  }
+  function openPanel(btn) {
+    var panelId = btn.getAttribute('data-panel');
+    var panel = document.getElementById(panelId);
+    if (!panel) return;
+    if (activePanel === panel) { closeAll(); return; }
+    closeAll();
+    btn.setAttribute('aria-expanded', 'true');
+    panel.classList.add('is-visible');
+    overlay.classList.add('is-visible');
+    activePanel = panel;
+  }
+
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); openPanel(btn); });
+    btn.addEventListener('mouseenter', function() { openPanel(btn); });
+    btn.addEventListener('mouseleave', function() { /* disabled */ });
+  });
+  panels.forEach(function(p) { p.addEventListener('mouseleave', function() { /* disabled */ }); });
+  overlay.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAll(); });
+
+  // Image reveal on link hover
+  document.querySelectorAll('.apple-link[data-illus]').forEach(function(link) {
+    link.addEventListener('mouseenter', function() {
+      var panel = link.closest('.megamenu-panel');
+      var target = link.getAttribute('data-illus');
+      panel.querySelectorAll('.apple-illustration').forEach(function(ill) {
+        ill.classList.remove('is-visible', 'is-default');
+      });
+      var el = document.getElementById(target);
+      if (el) el.classList.add('is-visible');
+    });
+    link.addEventListener('mouseleave', function() {
+      var panel = link.closest('.megamenu-panel');
+      panel.querySelectorAll('.apple-illustration').forEach(function(ill) {
+        ill.classList.remove('is-visible');
+      });
+      var def = panel.querySelector('.apple-illustration:first-child');
+      if (def) def.classList.add('is-default');
+    });
+  });
+})();
+</script>
+
+<script>
+lucide.createIcons();
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    var btn = document.querySelector('[data-panel="panel-ai"]');
+    if (btn) btn.click();
+  }, 800);
+});
+</script>
+</body>
+</html>

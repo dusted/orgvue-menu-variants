@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orgvue Menu - Monzo</title>
+<style>
+
+@font-face { font-family: arboria; src: url(fonts/arboria-book.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: arboria; src: url(fonts/arboria-medium.woff2) format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: archia; src: url(fonts/archia-regular.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: archia; src: url(fonts/archia-semibold.woff2) format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+/* Reset + base styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: archia, -apple-system, sans-serif; }
+
+/* Header bar */
+.site-header {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+}
+.site-header__container {
+  display: flex;
+  align-items: center;
+  height: 75px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 20px;
+}
+
+/* Logo */
+.site-branding__logo { height: 42px; width: 180px; }
+.site-branding__logo .fil0 { fill: #ff3349; }
+.site-branding__logo .fil1 { fill: #333; }
+
+/* Nav bar */
+.header-menu { display: flex; flex: 1; }
+.header-menu__container { width: 100%; }
+.header-menu__list {
+  margin-left: 35px !important;
+  display: flex;
+  align-items: center;
+  gap: 35px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.megamenu__item.l-0 { list-style: none; display: flex; align-items: center; }
+.megamenu__section-heading { margin: 0; line-height: 1; }
+.megamenu__section-heading h2 { font-size: inherit; margin: 0; line-height: 1; }
+.megamenu__section-button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: archia, sans-serif;
+  font-weight: 400;
+  color: #333;
+  font-size: 1rem;
+  letter-spacing: .54px;
+  padding: .2em;
+  padding-bottom: 6px;
+  border-bottom: 3px solid transparent;
+  position: relative;
+}
+.megamenu__section-button::after {
+  display: none;
+}
+.megamenu__section-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.megamenu__section-button .chevron-down {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+.megamenu__section-button[aria-expanded=true],
+.megamenu__section-button:hover {
+  text-decoration: none;
+  border-bottom: 3px solid #ff3349;
+  padding-bottom: 6px;
+}
+.header-menu__link {
+  font-family: archia, sans-serif;
+  font-weight: 400;
+  color: #333;
+  text-decoration: none;
+  font-size: 1rem;
+  letter-spacing: .54px;
+  padding: .2em;
+  padding-bottom: 6px;
+  border-bottom: 3px solid transparent;
+}
+.header-menu__link:hover {
+  text-decoration: none;
+  border-bottom: 3px solid #ff3349;
+  padding-bottom: 6px;
+}
+.megamenu__button-primary {
+  background: #ff3349;
+  font-size: 1rem;
+  padding: .7em 1.6em;
+  border-radius: 3px;
+  min-width: 140px;
+  text-align: center;
+}
+.megamenu__button-primary a {
+  color: #fff !important;
+  font-weight: 700 !important;
+  text-decoration: none;
+}
+
+/* Page body spacer */
+.page-spacer {
+  padding-top: 76px;
+  height: 600px;
+  background: #f9f9f9;
+}
+</style>
+
+<!-- Monzo-style Megamenu: two-panel (white left nav + tinted right content), contained width, 16px radius -->
+<style>
+/* ── Panel wrapper ── */
+.megamenu-panels-wrapper {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 21;
+  pointer-events: none;
+  padding-top: 0;
+}
+
+/* ── Overlay (Monzo: 30% black curtain) ── */
+.megamenu-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 20;
+  animation: monzoCurtainIn .15s ease forwards;
+}
+.megamenu-overlay.is-visible { display: block; }
+@keyframes monzoCurtainIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ── Panel base (Monzo: contained, two-panel, rounded bottom) ── */
+.megamenu-panel {
+  display: none;
+  pointer-events: auto;
+  max-width: max-content;
+  border-radius: 0 0 16px 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.12);
+}
+.megamenu-panel.is-visible {
+  display: grid;
+  grid-template-columns: minmax(280px, 420px) 1fr;
+}
+/* Smaller panels (Customers, Resources) don't need the two-panel split */
+.megamenu-panel.mega-panel--single.is-visible {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* ── Left nav pane (Monzo: white bg, vertical link list) ── */
+.mega-nav-pane {
+  background: #fff;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── Right content pane (Monzo: tinted background with cards/grid) ── */
+.mega-content-pane {
+  background: #f5f0fa;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Nav links in left pane (Monzo: muted, bold, brighten on hover) ── */
+.mega-nav-link {
+  font-family: archia, sans-serif;
+  font-size: .95rem;
+  font-weight: 400;
+  color: rgba(51,51,51,.55);
+  text-decoration: none;
+  display: block;
+  padding: 11px 14px;
+  border-radius: 8px;
+  transition: all .12s ease;
+  cursor: pointer;
+}
+.mega-nav-link:hover,
+.mega-nav-link:focus,
+.mega-nav-link.is-active {
+  color: #1a1a1a;
+  background: #f5f0fa;
+}
+
+/* ── Content section heading ── */
+.mega-content-title {
+  font-family: archia, sans-serif;
+  font-size: .65rem;
+  font-weight: 700;
+  color: rgba(51,51,51,.5);
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  margin: 0;
+}
+
+/* ── Landmark cards grid (Monzo: grid of cards with descriptions) ── */
+.mega-landmark-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.mega-landmark-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 16px;
+  gap: 4px;
+  border-radius: 10px;
+  background: #fff;
+  color: #1a1a1a;
+  text-decoration: none;
+  transition: all .15s ease;
+}
+.mega-landmark-card:hover {
+  box-shadow: 0 2px 8px rgba(90,0,132,.1);
+  transform: translateY(-1px);
+}
+.mega-landmark-card-title {
+  font-family: archia, sans-serif;
+  font-size: .85rem;
+  font-weight: 400;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.3;
+}
+.mega-landmark-card-desc {
+  font-family: archia, sans-serif;
+  font-size: .75rem;
+  font-weight: 400;
+  color: rgba(51,51,51,.55);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Simple link lists (used in right pane for flat lists) ── */
+.mega-link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.mega-link-list a {
+  font-family: archia, sans-serif;
+  font-size: .88rem;
+  font-weight: 400;
+  color: #1a1a1a;
+  text-decoration: none;
+  padding: 8px 0;
+  display: block;
+  transition: color .12s;
+}
+.mega-link-list a:hover {
+  color: #5a0084;
+}
+
+/* ── For single-pane panels (flat columns, no two-panel split) ── */
+.mega-inner {
+  display: flex;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 36px 40px;
+  gap: 0;
+  background: #fff;
+}
+.mega-col {
+  padding: 0 28px;
+  min-width: 160px;
+  flex: 1;
+}
+.mega-col:first-child { padding-left: 0; }
+.mega-col:last-child { padding-right: 0; }
+.mega-col h3 {
+  font-family: archia, sans-serif;
+  font-size: .65rem;
+  font-weight: 700;
+  color: rgba(51,51,51,.5);
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  margin: 0 0 16px 0;
+  padding: 0;
+  border: none;
+}
+.megamenu-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.megamenu-panel ul li a {
+  font-family: archia, sans-serif;
+  font-size: .88rem;
+  font-weight: 400;
+  color: #1a1a1a;
+  text-decoration: none;
+  display: block;
+  padding: 7px 0;
+  transition: color .12s;
+}
+.megamenu-panel ul li a:hover {
+  color: #5a0084;
+}
+.megamenu-panel ul li a .mega-icon { display: none; }
+.megamenu-panel ul li a .mega-desc {
+  display: block;
+  font-size: .75rem;
+  font-weight: 400;
+  color: rgba(51,51,51,.5);
+  margin-top: 2px;
+}
+.megamenu-panel ul li a:hover .mega-desc { color: #8e5aab; }
+
+/* ── Featured sidebar ── */
+.mega-featured {
+  padding: 0 0 0 28px;
+  min-width: 240px;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.mega-featured h3 {
+  font-family: archia, sans-serif;
+  font-size: .65rem;
+  font-weight: 700;
+  color: rgba(51,51,51,.5);
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  margin: 0 0 4px 0;
+}
+.mega-card {
+  padding: 18px;
+  background: #f5f0fa;
+  border-radius: 10px;
+  border: none;
+  transition: background .15s;
+  text-decoration: none;
+  display: block;
+}
+.mega-card:hover { background: #ece3f3; }
+.mega-card-label {
+  font-family: archia, sans-serif;
+  font-size: .58rem;
+  font-weight: 700;
+  color: #5a0084;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin: 0 0 6px 0;
+}
+.mega-card-title {
+  font-family: archia, sans-serif;
+  font-size: .82rem;
+  font-weight: 400;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  line-height: 1.35;
+}
+.mega-card-cta {
+  font-family: archia, sans-serif;
+  font-size: .75rem;
+  color: #5a0084;
+  margin: 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mega-card-cta::after { content: "\2192"; transition: transform .15s; }
+.mega-card:hover .mega-card-cta::after { transform: translateX(3px); }
+
+/* ── Sub-heading ── */
+.mega-col h4 {
+  font-family: archia, sans-serif;
+  font-size: .65rem;
+  font-weight: 700;
+  color: rgba(51,51,51,.5);
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  margin: 20px 0 12px 0;
+}
+</style>
+
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+
+<header class="site-header" style="background: #ffffff !important; background-image: none !important;">
+<div class="site-header__container">
+<div class="site-branding">
+<a href="#">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" fill-rule="evenodd" class="site-branding__logo" width="180" height="42" clip-rule="evenodd" viewBox="0 0 10792 2556">
+<path d="m9695 612-299 187c69 124 108 267 108 418 0 152-39 294-108 418l299 187 956-552c41-24 41-82 0-106l-956-552zm-159-92L8768 77c-31-18-70-6-85 26-41 82-78 167-110 253-99 268-153 558-153 861l1116-697z" class="fil0"></path>
+<path d="M8420 1216c0 303 54 593 153 861 32 87 69 171 110 253 16 32 55 43 85 26l768-443-1116-697z" class="fil0"></path>
+<path d="M7299 832c173 0 294 102 324 269h-637c33-173 146-269 313-269zm19 755c-173 0-302-110-332-286h994l3-69c0-409-283-695-689-695-393 0-670 280-670 678 0 395 288 681 692 681 263 0 481-134 609-371l-312-104c-55 102-165 165-294 165zm-6503 0c-203 0-340-148-340-368 0-222 137-368 343-368 209 0 338 143 338 373 0 211-140 362-340 362zm3-1049c-412 0-695 277-695 681 0 395 288 678 689 678 390 0 695-294 695-667 0-401-288-692-689-692zm5326 849c0 135-77 217-206 217-126 0-211-96-211-239V582h-349v804c0 168 44 288 135 371 99 91 250 140 426 140 168 0 310-47 412-132 104-88 143-192 143-379V582h-349v804zm-1556-47-280-758h-362l458 1271h360l464-1271h-357zm-1186 129c-63 74-162 118-264 118-200 0-343-157-343-376 0-211 140-362 340-362 88 0 176 38 239 99 63 66 93 159 93 297 0 96-25 176-66 225zm71-730c-110-140-233-200-412-200-382 0-637 277-637 689 0 387 253 670 601 670 184 0 332-71 448-217v129c0 239-134 376-368 376-159 0-280-55-393-176l-217 220c173 170 376 253 623 253 217 0 404-69 527-192 121-118 170-269 170-530V583h-343v156zM2111 599c-52 38-77 77-113 170V582h-349v1271h349v-612c0-121 11-176 52-233 49-71 137-115 233-115 19 0 47 3 74 5V541c-19-3-33-3-41-3-77 0-151 22-206 60z" class="fil1"></path>
+</svg>
+</a>
+</div>
+
+<nav class="header-menu">
+	<div class="header-menu__container"><ul id="menu-mega-menu" class="megamenu header-menu__list">
+
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-whyorgvue">Why Orgvue <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-platform">Platform <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-solutions">Solutions <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-ai">AI <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-customers">Customers <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-resources">Resources <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+
+<li class="megamenu__item l-0" style="flex-grow:1"></li>
+
+<li class="megamenu__item l-0"><a href="https://www.orgvue.com/existing-orgvue-clients/" class="header-menu__link" data-closemega="true">Login</a></li>
+
+<li class="megamenu__button-primary megamenu__item l-0"><a href="https://www.orgvue.com/demo-request/" data-closemega="true">Get a demo</a></li>
+</ul></div></nav>
+
+</div>
+</header>
+
+<div class="megamenu-overlay" id="megamenu-overlay"></div>
+
+<div class="megamenu-panels-wrapper">
+
+  <!-- WHY ORGVUE (Monzo two-panel: left nav + right landmark cards) -->
+  <div class="megamenu-panel" id="panel-whyorgvue">
+    <div class="mega-nav-pane">
+      <a class="mega-nav-link" href="https://www.orgvue.com/solutions/workforce-transformation/">Workforce Transform Leadership</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/solutions/platform/">Platform Advantages</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/company/">About Orgvue</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/company/about-dynaplan/">About Dynaplan</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/company/meet-the-team/">Meet the team</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/company/working-at-orgvue/">Careers</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/news/">News &amp; Media</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/legal/">Legal</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/contact/">Contact</a>
+    </div>
+    <div class="mega-content-pane">
+      <p class="mega-content-title">Highlights</p>
+      <div class="mega-landmark-grid">
+        <a class="mega-landmark-card" href="https://www.orgvue.com/solutions/workforce-transformation/">
+          <p class="mega-landmark-card-title">Workforce Transformation</p>
+          <p class="mega-landmark-card-desc">Lead change with workforce intelligence</p>
+        </a>
+        <a class="mega-landmark-card" href="https://www.orgvue.com/solutions/platform/">
+          <p class="mega-landmark-card-title">Platform Advantages</p>
+          <p class="mega-landmark-card-desc">What sets Orgvue apart</p>
+        </a>
+        <a class="mega-landmark-card" href="https://www.orgvue.com/company/working-at-orgvue/">
+          <p class="mega-landmark-card-title">Careers at Orgvue</p>
+          <p class="mega-landmark-card-desc">Join us and shape the future of work</p>
+        </a>
+        <a class="mega-landmark-card" href="https://www.orgvue.com/contact/">
+          <p class="mega-landmark-card-title">Contact us</p>
+          <p class="mega-landmark-card-desc">Get in touch with our team</p>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLATFORM (Monzo two-panel: left nav + right landmark cards) -->
+  <div class="megamenu-panel" id="panel-platform">
+    <div class="mega-nav-pane">
+      <a class="mega-nav-link" href="https://www.orgvue.com/solutions/platform/">Platform Overview</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/solutions/platform/features/">Platform Features</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/solutions/platform/ai-in-orgvue/">AI Capabilities</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/solutions/organization-modeling/">Organization Modeling</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/solutions/integration-with-orgvue/">Data integration</a>
+      <a class="mega-nav-link" href="https://trust.orgvue.com/" target="_blank" rel="noopener">Security &amp; Trust</a>
+    </div>
+    <div class="mega-content-pane">
+      <p class="mega-content-title">Services</p>
+      <div class="mega-landmark-grid">
+        <a class="mega-landmark-card" href="https://www.orgvue.com/solutions/orgvue-professional-services/">
+          <p class="mega-landmark-card-title">Professional Services</p>
+          <p class="mega-landmark-card-desc">Expert guidance for your transformation</p>
+        </a>
+        <a class="mega-landmark-card" href="https://www.orgvue.com/solutions/orgvue-expert-services/">
+          <p class="mega-landmark-card-title">Expert Services</p>
+          <p class="mega-landmark-card-desc">Deep domain expertise on demand</p>
+        </a>
+        <a class="mega-landmark-card" href="https://www.orgvue.com/solutions/orgvue-customer-success/">
+          <p class="mega-landmark-card-title">Customer Success</p>
+          <p class="mega-landmark-card-desc">Ongoing support to drive outcomes</p>
+        </a>
+        <a class="mega-landmark-card" href="https://www.orgvue.com/orgvue-partners/">
+          <p class="mega-landmark-card-title">Partners</p>
+          <p class="mega-landmark-card-desc">Our partner ecosystem</p>
+        </a>
+        <a class="mega-landmark-card" href="https://www.orgvue.com/become-an-orgvue-partner/">
+          <p class="mega-landmark-card-title">Become a partner</p>
+          <p class="mega-landmark-card-desc">Join the Orgvue network</p>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOLUTIONS (flat columns, too many items for two-panel) -->
+  <div class="megamenu-panel mega-panel--single" id="panel-solutions">
+    <div class="mega-inner">
+      <div class="mega-col">
+        <h3>By challenge</h3>
+        <ul>
+          <li><a href="https://www.orgvue.com/solutions/organizational-design/">Organizational Design</a></li>
+          <li><a href="https://www.orgvue.com/solutions/strategic-workforce-planning/">Strategic Workforce Planning</a></li>
+          <li><a href="https://www.orgvue.com/solutions/workforce-restructuring/">Workforce Restructuring</a></li>
+          <li><a href="https://www.orgvue.com/solutions/mergers-acquisitions/">Mergers &amp; Acquisitions</a></li>
+          <li><a href="https://www.orgvue.com/solutions/cost-reduction/">Cost Reduction</a></li>
+          <li><a href="https://www.orgvue.com/solutions/digital-transformation/">Digital Transformation</a></li>
+          <li><a href="https://www.orgvue.com/solutions/growth-and-expansion/">Growth &amp; Expansion</a></li>
+          <li><a href="https://www.orgvue.com/solutions/succession-planning/">Succession Planning</a></li>
+          <li><a href="https://www.orgvue.com/solutions/ai-and-automation-potential/">AI &amp; Automation Potential</a></li>
+        </ul>
+      </div>
+      <div class="mega-col">
+        <h3>By capability</h3>
+        <ul>
+          <li><a href="https://www.orgvue.com/solutions/organization-analysis/">Organization Analysis</a></li>
+          <li><a href="https://www.orgvue.com/solutions/activity-analysis/">Activity Analysis</a></li>
+          <li><a href="https://www.orgvue.com/solutions/benchmark-your-organization-with-orgvue/">Organizational Benchmarking</a></li>
+          <li><a href="https://www.orgvue.com/solutions/skills-and-competency-analysis/">Skills Gap Analysis</a></li>
+          <li><a href="https://www.orgvue.com/solutions/talent-intelligence/">Talent Intelligence</a></li>
+          <li><a href="https://www.orgvue.com/solutions/organization-modeling/">Organization Modeling</a></li>
+          <li><a href="https://www.orgvue.com/solutions/talent-selection/">Talent Selection &amp; Planning</a></li>
+          <li><a href="https://www.orgvue.com/solutions/tracking-and-monitoring/">Monitoring &amp; Tracking</a></li>
+          <li><a href="https://www.orgvue.com/solutions/data-harmonization/">Data Harmonization</a></li>
+        </ul>
+      </div>
+      <div class="mega-col">
+        <h3>By role</h3>
+        <ul>
+          <li><a href="https://www.orgvue.com/solutions/">CHROs &amp; CPOs</a></li>
+          <li><a href="https://www.orgvue.com/solutions/">HR Leaders</a></li>
+          <li><a href="https://www.orgvue.com/solutions/">Transformation Leads</a></li>
+          <li><a href="https://www.orgvue.com/solutions/">People Analytics Teams</a></li>
+          <li><a href="https://www.orgvue.com/solutions/">Finance Teams</a></li>
+          <li><a href="https://www.orgvue.com/solutions/">IT Buyers</a></li>
+        </ul>
+      </div>
+      <div class="mega-col">
+        <h3>By industry</h3>
+        <ul>
+          <li><a href="https://www.orgvue.com/customers/consumer-products/">Consumer products</a></li>
+          <li><a href="https://www.orgvue.com/customers/energy-and-resources/">Energy and resources</a></li>
+          <li><a href="https://www.orgvue.com/customers/financial-services/">Financial services</a></li>
+          <li><a href="https://www.orgvue.com/customers/life-sciences/">Life sciences</a></li>
+          <li><a href="https://www.orgvue.com/customers/media-and-entertainment/">Media and entertainment</a></li>
+          <li><a href="https://www.orgvue.com/customers/retail/">Retail</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div class="megamenu-panel mega-panel--single" id="panel-customers">
+    <div class="mega-inner">
+      <div class="mega-col">
+        <h3>Customers</h3>
+        <ul>
+          <li><a href="https://www.orgvue.com/existing-orgvue-clients/">For existing clients<span class="mega-desc">Login and support for current customers</span></a></li>
+          <li><a href="https://www.orgvue.com/resources/case-study">Case studies<span class="mega-desc">See how organizations use Orgvue</span></a></li>
+        </ul>
+      </div>
+      <div class="mega-col">
+        <h3>Industries</h3>
+        <ul>
+          <li><a href="https://www.orgvue.com/customers/consumer-products/">Consumer Products</a></li>
+          <li><a href="https://www.orgvue.com/customers/energy-and-resources/">Energy and Resources</a></li>
+          <li><a href="https://www.orgvue.com/customers/financial-services/">Financial Services</a></li>
+          <li><a href="https://www.orgvue.com/customers/life-sciences/">Life Sciences</a></li>
+          <li><a href="https://www.orgvue.com/customers/media-and-entertainment/">Media and Entertainment</a></li>
+          <li><a href="https://www.orgvue.com/customers/retail/">Retail</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="megamenu-panel mega-panel--single" id="panel-resources">
+    <div class="mega-inner">
+      <div class="mega-col">
+        <h3>Browse resources</h3>
+        <ul>
+          <li><a href="https://www.orgvue.com/resources/">Articles<span class="mega-desc">Insights and thought leadership</span></a></li>
+          <li><a href="https://www.orgvue.com/resources/">Videos<span class="mega-desc">Platform demos and expert talks</span></a></li>
+          <li><a href="https://www.orgvue.com/resources/">Ebooks &amp; Guides<span class="mega-desc">In-depth resources to download</span></a></li>
+          <li><a href="https://www.orgvue.com/events/">Webinars &amp; Events<span class="mega-desc">Upcoming and on-demand sessions</span></a></li>
+          <li><a href="https://www.orgvue.com/resources/">Whitepapers &amp; Reports</a></li>
+          <li><a href="https://www.orgvue.com/resources/self-assessment/workforce-planning-self-assessment/">Self-Assessments<span class="mega-desc">Benchmark your maturity</span></a></li>
+        </ul>
+      </div>
+      <div class="mega-featured">
+        <h3>Popular</h3>
+        <a class="mega-card" href="https://www.orgvue.com/resources/">
+          <p class="mega-card-label">Article</p>
+          <p class="mega-card-title">8 Organizational Design Types</p>
+          <p class="mega-card-cta">Read article</p>
+        </a>
+        <a class="mega-card" href="https://www.orgvue.com/resources/">
+          <p class="mega-card-label">Article</p>
+          <p class="mega-card-title">RACI Framework Complexity</p>
+          <p class="mega-card-cta">Read article</p>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI -->
+  <div class="megamenu-panel" id="panel-ai">
+    <div class="mega-nav-pane">
+      <a class="mega-nav-link" href="https://www.orgvue.com/solutions/platform/ai-in-orgvue/">AI in Orgvue</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/solutions/workforce-transformation/">AI &amp; Workforce Transformation</a>
+      <a class="mega-nav-link" href="https://www.orgvue.com/solutions/organization-analysis/">AI Insights</a>
+    </div>
+    <div class="mega-content-pane">
+      <p class="mega-content-title">Featured resources</p>
+      <div class="mega-landmark-grid">
+        <a class="mega-landmark-card" href="https://www.orgvue.com/resources/">
+          <p class="mega-landmark-card-title">How AI is reshaping workforce planning</p>
+          <p class="mega-landmark-card-desc">Guide to AI-powered organizational design</p>
+        </a>
+        <a class="mega-landmark-card" href="https://www.orgvue.com/resources/">
+          <p class="mega-landmark-card-title">Unlocking AI-driven organizational insights</p>
+          <p class="mega-landmark-card-desc">Discover AI capabilities in Orgvue</p>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-spacer"></div>
+
+<script>
+(function() {
+  var buttons = document.querySelectorAll('.megamenu__section-button[data-panel]');
+  var overlay = document.getElementById('megamenu-overlay');
+  var panelsWrapper = document.querySelector('.megamenu-panels-wrapper');
+  var panels = document.querySelectorAll('.megamenu-panel');
+  var activePanel = null;
+  var closeTimer = null;
+
+  function positionPanels() {
+    var header = document.querySelector('.site-header');
+    if (header) {
+      var rect = header.getBoundingClientRect();
+      var top = rect.bottom;
+      panelsWrapper.style.top = top + 'px';
+      overlay.style.top = top + 'px';
+    }
+  }
+  positionPanels();
+  window.addEventListener('resize', positionPanels);
+  window.addEventListener('scroll', positionPanels);
+
+  function closeAll() {
+    clearTimeout(closeTimer);
+    panels.forEach(function(p) { p.classList.remove('is-visible'); });
+    buttons.forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+    overlay.classList.remove('is-visible');
+    activePanel = null;
+  }
+
+  function openPanel(btn) {
+    clearTimeout(closeTimer);
+    var panelId = btn.getAttribute('data-panel');
+    var panel = document.getElementById(panelId);
+    if (!panel) return;
+    if (activePanel === panel) { closeAll(); return; }
+    closeAll();
+    btn.setAttribute('aria-expanded', 'true');
+    panel.classList.add('is-visible');
+    overlay.classList.add('is-visible');
+    activePanel = panel;
+  }
+
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      openPanel(btn);
+    });
+    btn.addEventListener('mouseenter', function() {
+      openPanel(btn);
+    });
+    btn.addEventListener('mouseleave', function() {
+      // disabled for Figma capture
+    });
+  });
+
+  panels.forEach(function(panel) {
+    panel.addEventListener('mouseenter', function() {
+      clearTimeout(closeTimer);
+    });
+    panel.addEventListener('mouseleave', function() {
+      // disabled for Figma capture
+    });
+  });
+
+  document.querySelectorAll('[data-closemega]').forEach(function(el) {
+    el.addEventListener('mouseenter', function() { /* disabled for capture */ });
+  });
+
+  overlay.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeAll();
+  });
+})();
+</script>
+
+<script>
+// Auto-open Solutions dropdown for capture
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    var btn = document.querySelector('[data-panel="panel-solutions"]');
+    if (btn) btn.click();
+  }, 800);
+});
+</script>
+</body>
+</html>

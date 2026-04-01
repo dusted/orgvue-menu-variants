@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orgvue Menu - Stripe Morphing</title>
+<style>
+
+@font-face { font-family: arboria; src: url(fonts/arboria-book.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: arboria; src: url(fonts/arboria-medium.woff2) format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: archia; src: url(fonts/archia-regular.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: archia; src: url(fonts/archia-semibold.woff2) format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: archia, -apple-system, sans-serif; }
+
+.site-header { position: fixed; z-index: 20; top: 0; left: 0; width: 100%; background-color: #fff; border-bottom: 1px solid #e0e0e0; }
+.site-header__container { display: flex; align-items: center; height: 75px; max-width: 1440px; margin: 0 auto; padding: 0 24px; gap: 20px; }
+.site-branding__logo { height: 42px; width: 180px; }
+.site-branding__logo .fil0 { fill: #ff3349; }
+.site-branding__logo .fil1 { fill: #333; }
+.header-menu { display: flex; flex: 1; }
+.header-menu__container { width: 100%; }
+.header-menu__list { margin-left: 35px !important; display: flex; align-items: center; gap: 35px; margin: 0; padding: 0; list-style: none; }
+.megamenu__item.l-0 { list-style: none; display: flex; align-items: center; }
+.megamenu__section-heading { margin: 0; line-height: 1; }
+.megamenu__section-heading h2 { font-size: inherit; margin: 0; line-height: 1; }
+.megamenu__section-button { border: none; background: none; cursor: pointer; font-family: archia, sans-serif; font-weight: 400; color: #333; font-size: 1rem; letter-spacing: .54px; padding: .2em; padding-bottom: 6px; border-bottom: 3px solid transparent; position: relative; display: inline-flex; align-items: center; gap: 6px; }
+.megamenu__section-button::after { display: none; }
+.megamenu__section-button .chevron-down { width: 10px; height: 10px; flex-shrink: 0; }
+.megamenu__section-button[aria-expanded=true], .megamenu__section-button:hover { text-decoration: none; border-bottom: 3px solid #ff3349; padding-bottom: 6px; }
+.header-menu__link { font-family: archia, sans-serif; font-weight: 400; color: #333; text-decoration: none; font-size: 1rem; letter-spacing: .54px; padding: .2em; padding-bottom: 6px; border-bottom: 3px solid transparent; }
+.header-menu__link:hover { text-decoration: none; border-bottom: 3px solid #ff3349; padding-bottom: 6px; }
+.megamenu__button-primary { background: linear-gradient(135deg, #ff3349, #e8002a); box-shadow: 0 2px 8px rgba(255,51,73,.25); font-size: 1rem; padding: .7em 1.6em; border-radius: 3px; min-width: 140px; text-align: center; }
+.megamenu__button-primary a { color: #fff !important; font-weight: 700 !important; text-decoration: none; }
+.page-spacer { padding-top: 76px; height: 600px; background: #f9f9f9; }
+
+/* ── Stripe morphing container ── */
+.stripe-nav-wrapper { position: fixed; left: 0; right: 0; z-index: 21; pointer-events: none; }
+.megamenu-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.2); z-index: 20; transition: opacity .25s ease; }
+.megamenu-overlay.is-visible { display: block; }
+
+.stripe-container {
+  pointer-events: auto;
+  background: linear-gradient(180deg, #fff 0%, #faf8fc 100%);
+  border-radius: 12px;
+  border-top: 3px solid #5a0084;
+  box-shadow: 0 12px 48px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.06);
+  overflow: hidden;
+  position: absolute;
+  top: 8px;
+  transition: width .3s cubic-bezier(.4,0,.2,1), height .3s cubic-bezier(.4,0,.2,1), left .3s cubic-bezier(.4,0,.2,1), opacity .2s ease;
+  transform-origin: top center;
+  opacity: 0;
+  visibility: hidden;
+  will-change: width, height, left;
+}
+.stripe-container.is-open { opacity: 1; visibility: visible; animation: stripeSwingIn .35s cubic-bezier(.2,.9,.3,1) forwards; }
+.stripe-container.is-morphing { animation: none; }
+@keyframes stripeSwingIn {
+  0% { opacity: 0; transform: perspective(800px) rotateX(-12deg) translateY(-6px); }
+  50% { opacity: 1; }
+  100% { transform: perspective(800px) rotateX(0) translateY(0); }
+}
+
+.stripe-section { position: absolute; top: 0; left: 0; right: 0; opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility .25s; display: flex; padding: 32px 36px; gap: 32px; }
+.stripe-section.is-active { opacity: 1; visibility: visible; }
+
+.stripe-arrow { position: absolute; top: -6px; width: 14px; height: 14px; background: #5a0084; transform: rotate(45deg); border-radius: 2px; box-shadow: -2px -2px 4px rgba(0,0,0,.04); transition: left .3s cubic-bezier(.4,0,.2,1); z-index: 1; }
+
+/* ── Columns ── */
+.stripe-col { min-width: 160px; }
+.stripe-col h3 { font-family: archia, sans-serif; font-size: .6rem; font-weight: 700; color: #5a0084; text-transform: uppercase; letter-spacing: 1.4px; margin: 0 0 16px 0; }
+.stripe-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.stripe-col ul li a { font-family: archia, sans-serif; font-size: .88rem; font-weight: 400; color: #333; text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; transition: background .12s, color .12s; line-height: 1.35; }
+.stripe-col ul li a:hover { background: #f5f0fa; color: #5a0084; transform: translateX(4px); }
+.stripe-col ul li a .s-icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; background: #f5f0fa; flex-shrink: 0; color: #5a0084; }
+.stripe-col ul li a .s-icon svg { width: 14px; height: 14px; }
+.stripe-col ul li a:hover .s-icon { background: #ece3f3; }
+.stripe-col ul li a .s-desc { display: block; font-size: .75rem; font-weight: 400; color: #888; margin-top: 2px; line-height: 1.3; }
+.stripe-col ul li a:hover .s-desc { color: #8e5aab; }
+
+/* ── Featured sidebar ── */
+.stripe-featured { min-width: 220px; max-width: 260px; padding-left: 28px; border-left: 1px solid #f0e6f6; display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
+.stripe-featured h3 { font-family: archia, sans-serif; font-size: .6rem; font-weight: 700; color: #5a0084; text-transform: uppercase; letter-spacing: 1.4px; margin: 0 0 4px 0; }
+.stripe-card { padding: 16px; background: #faf8fc; border-radius: 10px; text-decoration: none; display: block; transition: background .15s; }
+.stripe-card:hover { background: #f0e6f6; }
+.stripe-card-label { font-family: archia, sans-serif; font-size: .55rem; font-weight: 700; color: #5a0084; text-transform: uppercase; letter-spacing: .8px; margin: 0 0 5px 0; }
+.stripe-card-title { font-family: archia, sans-serif; font-size: .8rem; font-weight: 400; color: #1a1a1a; margin: 0 0 6px 0; line-height: 1.3; }
+.stripe-card-cta { font-family: archia, sans-serif; font-size: .72rem; color: #5a0084; font-weight: 600; margin: 0; }
+.stripe-card-cta::after { content: " \2192"; }
+</style>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+
+<header class="site-header" style="background: #ffffff !important; background-image: none !important;">
+<div class="site-header__container">
+<div class="site-branding">
+<a href="#">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" fill-rule="evenodd" class="site-branding__logo" width="180" height="42" clip-rule="evenodd" viewBox="0 0 10792 2556">
+<path d="m9695 612-299 187c69 124 108 267 108 418 0 152-39 294-108 418l299 187 956-552c41-24 41-82 0-106l-956-552zm-159-92L8768 77c-31-18-70-6-85 26-41 82-78 167-110 253-99 268-153 558-153 861l1116-697z" class="fil0"></path>
+<path d="M8420 1216c0 303 54 593 153 861 32 87 69 171 110 253 16 32 55 43 85 26l768-443-1116-697z" class="fil0"></path>
+<path d="M7299 832c173 0 294 102 324 269h-637c33-173 146-269 313-269zm19 755c-173 0-302-110-332-286h994l3-69c0-409-283-695-689-695-393 0-670 280-670 678 0 395 288 681 692 681 263 0 481-134 609-371l-312-104c-55 102-165 165-294 165zm-6503 0c-203 0-340-148-340-368 0-222 137-368 343-368 209 0 338 143 338 373 0 211-140 362-340 362zm3-1049c-412 0-695 277-695 681 0 395 288 678 689 678 390 0 695-294 695-667 0-401-288-692-689-692zm5326 849c0 135-77 217-206 217-126 0-211-96-211-239V582h-349v804c0 168 44 288 135 371 99 91 250 140 426 140 168 0 310-47 412-132 104-88 143-192 143-379V582h-349v804zm-1556-47-280-758h-362l458 1271h360l464-1271h-357zm-1186 129c-63 74-162 118-264 118-200 0-343-157-343-376 0-211 140-362 340-362 88 0 176 38 239 99 63 66 93 159 93 297 0 96-25 176-66 225zm71-730c-110-140-233-200-412-200-382 0-637 277-637 689 0 387 253 670 601 670 184 0 332-71 448-217v129c0 239-134 376-368 376-159 0-280-55-393-176l-217 220c173 170 376 253 623 253 217 0 404-69 527-192 121-118 170-269 170-530V583h-343v156zM2111 599c-52 38-77 77-113 170V582h-349v1271h349v-612c0-121 11-176 52-233 49-71 137-115 233-115 19 0 47 3 74 5V541c-19-3-33-3-41-3-77 0-151 22-206 60z" class="fil1"></path>
+</svg>
+</a>
+</div>
+<nav class="header-menu">
+<div class="header-menu__container"><ul id="menu-mega-menu" class="megamenu header-menu__list">
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="section-whyorgvue">Why Orgvue <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="section-platform">Platform <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="section-solutions">Solutions <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="section-ai">AI <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="section-customers">Customers <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="section-resources">Resources <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0" style="flex-grow:1"></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><a href="https://www.orgvue.com/existing-orgvue-clients/" class="header-menu__link megamenu__section-button" style="cursor:pointer;" data-closemega="true">Login</a></h2></li>
+<li class="megamenu__button-primary megamenu__item l-0"><a href="https://www.orgvue.com/demo-request/">Get a demo</a></li>
+</ul></div></nav>
+</div>
+</header>
+
+<div class="megamenu-overlay" id="megamenu-overlay"></div>
+
+<div class="stripe-nav-wrapper" id="stripe-nav-wrapper">
+  <div class="stripe-container" id="stripe-container">
+    <div class="stripe-arrow" id="stripe-arrow"></div>
+
+    <!-- WHY ORGVUE -->
+    <div class="stripe-section" id="section-whyorgvue" data-width="680" data-height="420">
+      <div class="stripe-col" style="flex:1">
+        <h3>Overview</h3>
+        <ul>
+          <li><a href="#"><span class="s-icon"><i data-lucide="zap"></i></span><span>Workforce Transform Leadership<span class="s-desc">Lead change with workforce intelligence</span></span></a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="award"></i></span><span>Platform Advantages<span class="s-desc">What sets Orgvue apart</span></span></a></li>
+        </ul>
+        <h3 style="margin-top:24px">Company</h3>
+        <ul>
+          <li><a href="#">About Orgvue</a></li>
+          <li><a href="#">About Dynaplan</a></li>
+          <li><a href="#">Meet the team</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">News &amp; Media</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="stripe-featured">
+        <h3>Featured</h3>
+        <a class="stripe-card" href="#">
+          <p class="stripe-card-label">Case Study</p>
+          <p class="stripe-card-title">How BDO leverages Orgvue to meet evolving market needs</p>
+          <p class="stripe-card-cta">Read more</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- PLATFORM -->
+    <div class="stripe-section" id="section-platform" data-width="720" data-height="400">
+      <div class="stripe-col" style="flex:1">
+        <h3>Platform</h3>
+        <ul>
+          <li><a href="#"><span class="s-icon"><i data-lucide="rocket"></i></span><span>Platform Overview<span class="s-desc">See the full picture</span></span></a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="settings"></i></span>Platform Features</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="brain"></i></span>AI Capabilities</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="git-branch"></i></span>Organization Modeling</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="link"></i></span>Data integration</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="shield-check"></i></span>Security &amp; Trust</a></li>
+        </ul>
+      </div>
+      <div class="stripe-col" style="flex:1">
+        <h3>Services</h3>
+        <ul>
+          <li><a href="#"><span class="s-icon"><i data-lucide="wrench"></i></span>Professional Services</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="graduation-cap"></i></span>Expert Services</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="trophy"></i></span>Customer Success</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="handshake"></i></span>Partners</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="plus-circle"></i></span>Become a partner</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SOLUTIONS -->
+    <div class="stripe-section" id="section-solutions" data-width="900" data-height="460">
+      <div class="stripe-col" style="flex:1">
+        <h3>By challenge</h3>
+        <ul>
+          <li><a href="#">Organizational Design</a></li>
+          <li><a href="#">Strategic Workforce Planning</a></li>
+          <li><a href="#">Workforce Restructuring</a></li>
+          <li><a href="#">Mergers &amp; Acquisitions</a></li>
+          <li><a href="#">Cost Reduction</a></li>
+          <li><a href="#">Digital Transformation</a></li>
+          <li><a href="#">Growth &amp; Expansion</a></li>
+          <li><a href="#">Succession Planning</a></li>
+          <li><a href="#">AI &amp; Automation Potential</a></li>
+        </ul>
+      </div>
+      <div class="stripe-col" style="flex:1">
+        <h3>By capability</h3>
+        <ul>
+          <li><a href="#">Organization Analysis</a></li>
+          <li><a href="#">Activity Analysis</a></li>
+          <li><a href="#">Organizational Benchmarking</a></li>
+          <li><a href="#">Skills Gap Analysis</a></li>
+          <li><a href="#">Talent Intelligence</a></li>
+          <li><a href="#">Organization Modeling</a></li>
+          <li><a href="#">Talent Selection &amp; Planning</a></li>
+          <li><a href="#">Monitoring &amp; Tracking</a></li>
+          <li><a href="#">Data Harmonization</a></li>
+        </ul>
+      </div>
+      <div class="stripe-col" style="flex:1">
+        <h3>By role</h3>
+        <ul>
+          <li><a href="#">CHROs &amp; CPOs</a></li>
+          <li><a href="#">HR Leaders</a></li>
+          <li><a href="#">Transformation Leads</a></li>
+          <li><a href="#">People Analytics Teams</a></li>
+          <li><a href="#">Finance Teams</a></li>
+          <li><a href="#">IT Buyers</a></li>
+        </ul>
+      </div>
+      <div class="stripe-col" style="flex:1">
+        <h3>By industry</h3>
+        <ul>
+          <li><a href="#">Consumer products</a></li>
+          <li><a href="#">Energy and resources</a></li>
+          <li><a href="#">Financial services</a></li>
+          <li><a href="#">Life sciences</a></li>
+          <li><a href="#">Media and entertainment</a></li>
+          <li><a href="#">Retail</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- AI -->
+    <div class="stripe-section" id="section-ai" data-width="620" data-height="340">
+      <div class="stripe-col" style="flex:1">
+        <h3>AI</h3>
+        <ul>
+          <li><a href="#"><span class="s-icon"><i data-lucide="brain"></i></span><span>AI in Orgvue<span class="s-desc">AI-powered analysis and insights</span></span></a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="zap"></i></span><span>AI &amp; Workforce Transformation<span class="s-desc">Transform your workforce with AI</span></span></a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="lightbulb"></i></span><span>AI Insights<span class="s-desc">Data-driven organizational intelligence</span></span></a></li>
+        </ul>
+      </div>
+      <div class="stripe-featured">
+        <h3>Featured</h3>
+        <a class="stripe-card" href="#">
+          <p class="stripe-card-label">Guide</p>
+          <p class="stripe-card-title">How AI is reshaping workforce planning</p>
+          <p class="stripe-card-cta">Read more</p>
+        </a>
+        <a class="stripe-card" href="#">
+          <p class="stripe-card-label">Article</p>
+          <p class="stripe-card-title">Unlocking AI-driven organizational insights</p>
+          <p class="stripe-card-cta">Read more</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="stripe-section" id="section-customers" data-width="520" data-height="320">
+      <div class="stripe-col" style="flex:1">
+        <h3>Customers</h3>
+        <ul>
+          <li><a href="#"><span class="s-icon"><i data-lucide="key-round"></i></span>For existing clients</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="book-open"></i></span>Case studies</a></li>
+        </ul>
+      </div>
+      <div class="stripe-col" style="flex:1">
+        <h3>Industries</h3>
+        <ul>
+          <li><a href="#">Consumer Products</a></li>
+          <li><a href="#">Energy and Resources</a></li>
+          <li><a href="#">Financial Services</a></li>
+          <li><a href="#">Life Sciences</a></li>
+          <li><a href="#">Media and Entertainment</a></li>
+          <li><a href="#">Retail</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RESOURCES -->
+    <div class="stripe-section" id="section-resources" data-width="620" data-height="360">
+      <div class="stripe-col" style="flex:1">
+        <h3>Browse</h3>
+        <ul>
+          <li><a href="#"><span class="s-icon"><i data-lucide="file-text"></i></span>Articles</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="play-circle"></i></span>Videos</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="book-marked"></i></span>Ebooks &amp; Guides</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="calendar"></i></span>Webinars &amp; Events</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="clipboard-list"></i></span>Whitepapers &amp; Reports</a></li>
+          <li><a href="#"><span class="s-icon"><i data-lucide="check-square"></i></span>Self-Assessments</a></li>
+        </ul>
+      </div>
+      <div class="stripe-featured">
+        <h3>Popular</h3>
+        <a class="stripe-card" href="#">
+          <p class="stripe-card-label">Article</p>
+          <p class="stripe-card-title">8 Organizational Design Types</p>
+          <p class="stripe-card-cta">Read article</p>
+        </a>
+        <a class="stripe-card" href="#">
+          <p class="stripe-card-label">Article</p>
+          <p class="stripe-card-title">RACI Framework Complexity</p>
+          <p class="stripe-card-cta">Read article</p>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="page-spacer"></div>
+
+<script>
+(function() {
+  var buttons = document.querySelectorAll('.megamenu__section-button[data-panel]');
+  var overlay = document.getElementById('megamenu-overlay');
+  var wrapper = document.getElementById('stripe-nav-wrapper');
+  var container = document.getElementById('stripe-container');
+  var arrow = document.getElementById('stripe-arrow');
+  var sections = document.querySelectorAll('.stripe-section');
+  var activeSection = null;
+  var isOpen = false;
+
+  function positionWrapper() {
+    var header = document.querySelector('.site-header');
+    if (header) { wrapper.style.top = header.getBoundingClientRect().bottom + 'px'; }
+  }
+  positionWrapper();
+  window.addEventListener('resize', positionWrapper);
+  window.addEventListener('scroll', positionWrapper);
+
+  function closeAll() {
+    sections.forEach(function(s) { s.classList.remove('is-active'); });
+    buttons.forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+    container.classList.remove('is-open', 'is-morphing');
+    overlay.classList.remove('is-visible');
+    activeSection = null;
+    isOpen = false;
+  }
+
+  function openSection(btn) {
+    var sectionId = btn.getAttribute('data-panel');
+    var section = document.getElementById(sectionId);
+    if (!section) return;
+    if (activeSection === section) { closeAll(); return; }
+
+    var w = parseInt(section.getAttribute('data-width')) || 600;
+    var h = parseInt(section.getAttribute('data-height')) || 350;
+    var btnRect = btn.getBoundingClientRect();
+    var wrapperRect = wrapper.getBoundingClientRect();
+    var arrowLeft = btnRect.left + btnRect.width / 2 - wrapperRect.left;
+    var containerLeft = arrowLeft - w / 2;
+    var maxLeft = window.innerWidth - w - 20;
+    containerLeft = Math.max(20, Math.min(containerLeft, maxLeft));
+
+    container.style.width = w + 'px';
+    container.style.height = h + 'px';
+    container.style.left = containerLeft + 'px';
+    arrow.style.left = (arrowLeft - containerLeft - 7) + 'px';
+
+    sections.forEach(function(s) { s.classList.remove('is-active'); });
+    buttons.forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+    section.classList.add('is-active');
+    btn.setAttribute('aria-expanded', 'true');
+
+    if (!isOpen) {
+      container.classList.remove('is-morphing');
+      container.classList.add('is-open');
+      isOpen = true;
+    } else {
+      container.classList.add('is-morphing');
+    }
+    overlay.classList.add('is-visible');
+    activeSection = section;
+  }
+
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); openSection(btn); });
+    btn.addEventListener('mouseenter', function() { openSection(btn); });
+    btn.addEventListener('mouseleave', function() { /* disabled for capture */ });
+  });
+  container.addEventListener('mouseleave', function() { /* disabled for capture */ });
+  overlay.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAll(); });
+})();
+</script>
+
+<script>
+lucide.createIcons();
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    var btn = document.querySelector('[data-panel="section-solutions"]');
+    if (btn) btn.click();
+  }, 800);
+});
+</script>
+</body>
+</html>

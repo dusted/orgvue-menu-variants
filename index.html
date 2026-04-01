@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orgvue Menu Variants</title>
+<style>
+@font-face { font-family: archia; src: url(fonts/archia-regular.woff2) format("woff2"); font-weight: 400; }
+@font-face { font-family: archia; src: url(fonts/archia-semibold.woff2) format("woff2"); font-weight: 700; }
+@font-face { font-family: arboria; src: url(fonts/arboria-book.woff2) format("woff2"); font-weight: 400; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: archia, -apple-system, sans-serif; background: #f5f5f7; min-height: 100vh; padding: 60px 24px; }
+.container { max-width: 960px; margin: 0 auto; }
+h1 { font-family: arboria, sans-serif; font-size: 2.2rem; font-weight: 400; color: #1a1a1a; margin-bottom: 8px; letter-spacing: -.02em; }
+.subtitle { font-size: .95rem; color: #888; margin-bottom: 48px; line-height: 1.5; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.card {
+  background: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  padding: 28px 28px 24px;
+  text-decoration: none;
+  transition: box-shadow .2s, border-color .2s, transform .2s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  border-color: #ddd;
+  transform: translateY(-2px);
+}
+.card-label {
+  font-size: .6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #5a0084;
+}
+.card-title {
+  font-family: arboria, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+.card-desc {
+  font-size: .82rem;
+  color: #888;
+  line-height: 1.5;
+}
+.card-cta {
+  font-size: .78rem;
+  font-weight: 600;
+  color: #5a0084;
+  margin-top: auto;
+  padding-top: 8px;
+}
+.card-cta::after { content: " \2192"; }
+
+.divider { grid-column: 1 / -1; height: 1px; background: linear-gradient(90deg, #5a0084, transparent); opacity: .15; margin: 16px 0; }
+.section-label { grid-column: 1 / -1; font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px; color: #999; margin-bottom: -8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Orgvue Menu Variants</h1>
+  <p class="subtitle">Mega menu design explorations for the Orgvue website. Each variant applies a different navigation pattern to the same content structure.</p>
+
+  <div class="grid">
+
+    <p class="section-label">Based on existing sites</p>
+
+    <a class="card" href="capture-fnz.html">
+      <span class="card-label">FNZ Style</span>
+      <span class="card-title">Flex columns + featured cards</span>
+      <span class="card-desc">Contained panel with equal flex columns, thin dividers, Lucide icons, and a featured content sidebar with promotional cards.</span>
+      <span class="card-cta">View variant</span>
+    </a>
+
+    <a class="card" href="capture-monzo.html">
+      <span class="card-label">Monzo Style</span>
+      <span class="card-title">Two-panel split layout</span>
+      <span class="card-desc">White left nav pane with muted links + tinted right pane with landmark cards. Contained width, 16px radius.</span>
+      <span class="card-cta">View variant</span>
+    </a>
+
+    <a class="card" href="capture-sumup.html">
+      <span class="card-label">SumUp Style</span>
+      <span class="card-title">Sidebar description card + grouped columns</span>
+      <span class="card-desc">Full-width panel with a left sidebar narrative card introducing each section, and right-side grouped link columns.</span>
+      <span class="card-cta">View variant</span>
+    </a>
+
+    <a class="card" href="capture-starling.html">
+      <span class="card-label">Starling Style</span>
+      <span class="card-title">CSS Grid with product cards</span>
+      <span class="card-desc">Multi-column CSS Grid with intro area, icon product cards, link section columns, and footer CTAs.</span>
+      <span class="card-cta">View variant</span>
+    </a>
+
+    <div class="divider"></div>
+    <p class="section-label">Creative explorations</p>
+
+    <a class="card" href="capture-stripe.html">
+      <span class="card-label">Stripe Pattern</span>
+      <span class="card-title">Morphing container</span>
+      <span class="card-desc">Single panel that smoothly morphs its dimensions when switching between nav items. 3D swing-in animation, cross-fading content, arrow indicator.</span>
+      <span class="card-cta">View variant</span>
+    </a>
+
+    <a class="card" href="capture-tabs.html">
+      <span class="card-label">Monday.com Pattern</span>
+      <span class="card-title">Multi-perspective tabs</span>
+      <span class="card-desc">Solutions dropdown has switchable tabs — By Challenge, By Capability, By Role, By Industry — each reconfiguring the content with colour-coded icons.</span>
+      <span class="card-cta">View variant</span>
+    </a>
+
+    <a class="card" href="capture-plaid.html">
+      <span class="card-label">Plaid Pattern</span>
+      <span class="card-title">Progressive disclosure</span>
+      <span class="card-desc">Left pane shows category selectors, hovering each replaces the right pane content. Users are never overwhelmed — drill into only what they care about.</span>
+      <span class="card-cta">View variant</span>
+    </a>
+
+    <a class="card" href="capture-apple.html">
+      <span class="card-label">Apple Pattern</span>
+      <span class="card-title">Subtractive design + image reveals</span>
+      <span class="card-desc">Dark blurred overlay, large restrained typography, and contextual SVG illustrations that cross-fade on link hover. Creativity through removal.</span>
+      <span class="card-cta">View variant</span>
+    </a>
+
+    <a class="card" href="capture-vercel.html">
+      <span class="card-label">Vercel Pattern</span>
+      <span class="card-title">Sliding highlight pill</span>
+      <span class="card-desc">A background pill physically slides between nav items following cursor direction. Monochrome palette, bordered icon badges, panel footer bars.</span>
+      <span class="card-cta">View variant</span>
+    </a>
+
+  </div>
+</div>
+</body>
+</html>
