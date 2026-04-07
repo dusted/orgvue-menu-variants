@@ -45,7 +45,7 @@ body { font-family: archia, -apple-system, sans-serif; }
   pointer-events: auto;
   max-width: 1100px;
   margin: 0 auto;
-  border-radius: 0 0 16px 16px;
+  border-radius: 0 0 3px 3px;
   border-top: 3px solid #5a0084;
   overflow: hidden;
   box-shadow: 0 12px 48px rgba(0,0,0,.1);
@@ -62,18 +62,18 @@ body { font-family: archia, -apple-system, sans-serif; }
 .panel-col { min-width: 150px; flex: 1; }
 .panel-col h3 { font-family: archia, sans-serif; font-size: .6rem; font-weight: 700; color: #5a0084; text-transform: uppercase; letter-spacing: 1.4px; margin: 0 0 14px 0; }
 .panel-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
-.panel-col ul li a { font-family: archia, sans-serif; font-size: .88rem; font-weight: 400; color: #333; text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; transition: background .12s, color .12s; }
+.panel-col ul li a { font-family: archia, sans-serif; font-size: .88rem; font-weight: 400; color: #333; text-decoration: none; display: flex; align-items: center; gap: 10px; padding: 7px 0; border-radius: 3px; transition: background .12s, color .12s, transform .12s; }
 .panel-col ul li a:hover { background: #f5f0fa; color: #5a0084; transform: translateX(4px); }
-.panel-col ul li a .s-icon { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 7px; background: #f5f0fa; flex-shrink: 0; color: #5a0084; }
+.panel-col ul li a .s-icon { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 3px; background: #f5f0fa; flex-shrink: 0; color: #5a0084; }
 .panel-col ul li a .s-icon svg { width: 13px; height: 13px; }
 .panel-col ul li a:hover .s-icon { background: #ece3f3; }
-.panel-col ul li a .s-desc { display: block; font-size: .73rem; font-weight: 400; color: #888; margin-top: 2px; }
+.panel-col ul li a .s-desc { display: block; font-size: .73rem; font-weight: 400; color: #777; margin-top: 2px; }
 .panel-col ul li a:hover .s-desc { color: #8e5aab; }
 
 /* ── Featured sidebar ── */
-.panel-featured { min-width: 220px; max-width: 250px; padding-left: 28px; border-left: 1px solid #f0e6f6; display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
+.panel-featured { min-width: 220px; max-width: 280px; padding-left: 28px; border-left: 1px solid #f0e6f6; display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; margin-left: auto; }
 .panel-featured h3 { font-family: archia, sans-serif; font-size: .6rem; font-weight: 700; color: #5a0084; text-transform: uppercase; letter-spacing: 1.4px; margin: 0 0 4px 0; }
-.panel-card { padding: 14px; background: #faf8fc; border-radius: 10px; text-decoration: none; display: block; transition: background .15s; }
+.panel-card { padding: 14px; background: #faf8fc; border-radius: 3px; text-decoration: none; display: block; transition: background .15s; }
 .panel-card:hover { background: #f0e6f6; }
 .panel-card-label { font-family: archia, sans-serif; font-size: .55rem; font-weight: 700; color: #5a0084; text-transform: uppercase; letter-spacing: .8px; margin: 0 0 4px 0; }
 .panel-card-title { font-family: archia, sans-serif; font-size: .78rem; font-weight: 400; color: #1a1a1a; margin: 0 0 5px 0; line-height: 1.3; }
@@ -128,8 +128,8 @@ body { font-family: archia, -apple-system, sans-serif; }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 10px 0;
+  border-radius: 3px;
   text-decoration: none;
   color: #333;
   font-family: archia, sans-serif;
@@ -144,7 +144,7 @@ body { font-family: archia, -apple-system, sans-serif; }
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 3px;
   flex-shrink: 0;
   font-size: .85rem;
 }
@@ -154,7 +154,7 @@ body { font-family: archia, -apple-system, sans-serif; }
 .tab-panel[data-tab="industry"] .tab-icon { background: #e8f8ee; color: #1a8a4a; }
 .tab-item:hover .tab-icon { filter: brightness(.95); }
 .tab-item .tab-text { line-height: 1.3; }
-.tab-item .tab-text .tab-sub { display: block; font-size: .72rem; color: #888; font-weight: 400; margin-top: 1px; }
+.tab-item .tab-text .tab-sub { display: block; font-size: .72rem; color: #777; font-weight: 400; margin-top: 1px; }
 .tab-item:hover .tab-text .tab-sub { color: #8e5aab; }
 </style>
 
