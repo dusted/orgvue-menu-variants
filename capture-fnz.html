@@ -104,7 +104,8 @@ body { font-family: archia, -apple-system, sans-serif; }
   padding-bottom: 6px;
 }
 .megamenu__button-primary {
-  background: #ff3349;
+  background: linear-gradient(135deg, #ff3349, #e8002a);
+  box-shadow: 0 2px 8px rgba(255,51,73,.25);
   font-size: 1rem;
   padding: .7em 1.6em;
   border-radius: 3px;
@@ -151,13 +152,14 @@ body { font-family: archia, -apple-system, sans-serif; }
 /* ── Panel base ── */
 .megamenu-panel {
   display: none;
-  background: #fff;
+  background: linear-gradient(180deg, #fff 0%, #faf8fc 100%);
   pointer-events: auto;
   animation: megaSlideDown .25s cubic-bezier(.22,.61,.36,1);
   box-shadow: 0 12px 40px rgba(0,0,0,.10);
   max-width: 1200px;
   margin: 0 auto;
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 3px 3px;
+  border-top: 3px solid #5a0084;
   overflow: hidden;
 }
 .megamenu-panel.is-visible {
@@ -240,6 +242,7 @@ body { font-family: archia, -apple-system, sans-serif; }
 .megamenu-panel ul li a:focus {
   background: #f5f0fa;
   color: #5a0084;
+  transform: translateX(4px);
 }
 .megamenu-panel ul li a .mega-icon {
   display: inline-flex;
