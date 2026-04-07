@@ -138,21 +138,19 @@ body { font-family: archia, -apple-system, sans-serif; }
   transition: background .12s, color .12s;
 }
 .tab-item:hover { background: #f5f0fa; color: #5a0084; transform: translateX(4px); }
-.tab-item .tab-icon {
+.tab-item .s-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 3px;
   flex-shrink: 0;
-  font-size: .85rem;
+  background: #f5f0fa;
+  color: #5a0084;
 }
-.tab-panel[data-tab="challenge"] .tab-icon { background: #fff0f2; color: #ff3349; }
-.tab-panel[data-tab="capability"] .tab-icon { background: #f0e6f6; color: #5a0084; }
-.tab-panel[data-tab="role"] .tab-icon { background: #e8f4fd; color: #0070c0; }
-.tab-panel[data-tab="industry"] .tab-icon { background: #e8f8ee; color: #1a8a4a; }
-.tab-item:hover .tab-icon { filter: brightness(.95); }
+.tab-item .s-icon svg { width: 13px; height: 13px; }
+.tab-item:hover .s-icon { background: #ece3f3; }
 .tab-item .tab-text { line-height: 1.3; }
 .tab-item .tab-text .tab-sub { display: block; font-size: .72rem; color: #777; font-weight: 400; margin-top: 1px; }
 .tab-item:hover .tab-text .tab-sub { color: #8e5aab; }
@@ -261,15 +259,15 @@ body { font-family: archia, -apple-system, sans-serif; }
       <div class="tab-panel is-active" data-tab="challenge">
         <div class="tab-panel-inner">
           <div class="tab-items">
-            <a class="tab-item" href="#"><span class="tab-icon">&#9881;</span><span class="tab-text">Organizational Design</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#127919;</span><span class="tab-text">Strategic Workforce Planning</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128260;</span><span class="tab-text">Workforce Restructuring</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#129309;</span><span class="tab-text">Mergers &amp; Acquisitions</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128200;</span><span class="tab-text">Cost Reduction</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128187;</span><span class="tab-text">Digital Transformation</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128640;</span><span class="tab-text">Growth &amp; Expansion</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128101;</span><span class="tab-text">Succession Planning</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#129302;</span><span class="tab-text">AI &amp; Automation Potential</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="layout-grid"></i></span><span class="tab-text">Organizational Design</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="target"></i></span><span class="tab-text">Strategic Workforce Planning</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="shuffle"></i></span><span class="tab-text">Workforce Restructuring</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="merge"></i></span><span class="tab-text">Mergers &amp; Acquisitions</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="trending-down"></i></span><span class="tab-text">Cost Reduction</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="monitor"></i></span><span class="tab-text">Digital Transformation</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="rocket"></i></span><span class="tab-text">Growth &amp; Expansion</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="users"></i></span><span class="tab-text">Succession Planning</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="brain"></i></span><span class="tab-text">AI &amp; Automation Potential</span></a>
           </div>
           <div class="panel-featured">
             <h3>Featured</h3>
@@ -281,15 +279,15 @@ body { font-family: archia, -apple-system, sans-serif; }
       <div class="tab-panel" data-tab="capability">
         <div class="tab-panel-inner">
           <div class="tab-items">
-            <a class="tab-item" href="#"><span class="tab-icon">&#128269;</span><span class="tab-text">Organization Analysis</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128203;</span><span class="tab-text">Activity Analysis</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128202;</span><span class="tab-text">Organizational Benchmarking</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#127891;</span><span class="tab-text">Skills Gap Analysis</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128161;</span><span class="tab-text">Talent Intelligence</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128736;</span><span class="tab-text">Organization Modeling</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#9745;</span><span class="tab-text">Talent Selection &amp; Planning</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128200;</span><span class="tab-text">Monitoring &amp; Tracking</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128279;</span><span class="tab-text">Data Harmonization</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="search"></i></span><span class="tab-text">Organization Analysis</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="clipboard-list"></i></span><span class="tab-text">Activity Analysis</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="bar-chart-3"></i></span><span class="tab-text">Organizational Benchmarking</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="graduation-cap"></i></span><span class="tab-text">Skills Gap Analysis</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="lightbulb"></i></span><span class="tab-text">Talent Intelligence</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="git-branch"></i></span><span class="tab-text">Organization Modeling</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="check-square"></i></span><span class="tab-text">Talent Selection &amp; Planning</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="activity"></i></span><span class="tab-text">Monitoring &amp; Tracking</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="link"></i></span><span class="tab-text">Data Harmonization</span></a>
           </div>
           <div class="panel-featured">
             <h3>Featured</h3>
@@ -301,12 +299,12 @@ body { font-family: archia, -apple-system, sans-serif; }
       <div class="tab-panel" data-tab="role">
         <div class="tab-panel-inner">
           <div class="tab-items">
-            <a class="tab-item" href="#"><span class="tab-icon">&#128081;</span><span class="tab-text">CHROs &amp; CPOs<span class="tab-sub">Strategic workforce leadership</span></span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128101;</span><span class="tab-text">HR Leaders<span class="tab-sub">Operational people strategy</span></span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#9889;</span><span class="tab-text">Transformation Leads<span class="tab-sub">Drive organizational change</span></span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128202;</span><span class="tab-text">People Analytics Teams<span class="tab-sub">Data-driven workforce insights</span></span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128176;</span><span class="tab-text">Finance Teams<span class="tab-sub">Workforce cost modeling</span></span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128187;</span><span class="tab-text">IT Buyers<span class="tab-sub">Platform evaluation &amp; integration</span></span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="crown"></i></span><span class="tab-text">CHROs &amp; CPOs<span class="tab-sub">Strategic workforce leadership</span></span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="users"></i></span><span class="tab-text">HR Leaders<span class="tab-sub">Operational people strategy</span></span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="zap"></i></span><span class="tab-text">Transformation Leads<span class="tab-sub">Drive organizational change</span></span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="bar-chart-3"></i></span><span class="tab-text">People Analytics Teams<span class="tab-sub">Data-driven workforce insights</span></span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="wallet"></i></span><span class="tab-text">Finance Teams<span class="tab-sub">Workforce cost modeling</span></span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="monitor"></i></span><span class="tab-text">IT Buyers<span class="tab-sub">Platform evaluation &amp; integration</span></span></a>
           </div>
         </div>
       </div>
@@ -314,12 +312,12 @@ body { font-family: archia, -apple-system, sans-serif; }
       <div class="tab-panel" data-tab="industry">
         <div class="tab-panel-inner">
           <div class="tab-items">
-            <a class="tab-item" href="#"><span class="tab-icon">&#128722;</span><span class="tab-text">Consumer products</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#9889;</span><span class="tab-text">Energy and resources</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#127974;</span><span class="tab-text">Financial services</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128138;</span><span class="tab-text">Life sciences</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#127916;</span><span class="tab-text">Media and entertainment</span></a>
-            <a class="tab-item" href="#"><span class="tab-icon">&#128717;</span><span class="tab-text">Retail</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="shopping-cart"></i></span><span class="tab-text">Consumer products</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="zap"></i></span><span class="tab-text">Energy and resources</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="landmark"></i></span><span class="tab-text">Financial services</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="microscope"></i></span><span class="tab-text">Life sciences</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="film"></i></span><span class="tab-text">Media and entertainment</span></a>
+            <a class="tab-item" href="#"><span class="s-icon"><i data-lucide="store"></i></span><span class="tab-text">Retail</span></a>
           </div>
         </div>
       </div>
