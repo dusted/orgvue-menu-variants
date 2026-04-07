@@ -104,7 +104,8 @@ body { font-family: archia, -apple-system, sans-serif; }
   padding-bottom: 6px;
 }
 .megamenu__button-primary {
-  background: #ff3349;
+  background: linear-gradient(135deg, #ff3349, #e8002a);
+  box-shadow: 0 2px 8px rgba(255,51,73,.25);
   font-size: 1rem;
   padding: .7em 1.6em;
   border-radius: 3px;
@@ -149,11 +150,11 @@ body { font-family: archia, -apple-system, sans-serif; }
 /* ── Panel base (SumUp: full-width, white, border-top, bottom shadow) ── */
 .megamenu-panel {
   display: none;
-  background: #fff;
+  background: linear-gradient(180deg, #fff 0%, #faf8fc 100%);
   pointer-events: auto;
   width: 100%;
   min-height: 380px;
-  border-top: 1px solid #e5e5e5;
+  border-top: 3px solid #5a0084;
   box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.08);
   animation: sumupFadeIn .2s ease;
 }
@@ -181,15 +182,16 @@ body { font-family: archia, -apple-system, sans-serif; }
 }
 .sumup-sidebar-card {
   background: #f5f0fa;
-  border-radius: 16px;
+  border-radius: 3px;
   padding: 28px;
 }
 .sumup-sidebar-card h2 {
   font-family: arboria, sans-serif;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.8rem;
+  font-weight: 400;
   color: #1a1a1a;
   margin: 0 0 12px 0;
+  letter-spacing: -.02em;
 }
 .sumup-sidebar-card p {
   font-family: archia, sans-serif;
@@ -216,7 +218,7 @@ body { font-family: archia, -apple-system, sans-serif; }
   font-family: archia, sans-serif;
   font-size: .65rem;
   font-weight: 700;
-  color: #888;
+  color: #5a0084;
   text-transform: uppercase;
   letter-spacing: 1.4px;
   margin: 0 0 16px 0;
@@ -241,12 +243,13 @@ body { font-family: archia, -apple-system, sans-serif; }
 .sumup-group ul li a:hover {
   text-decoration: underline;
   color: #5a0084;
+  transform: translateX(4px);
 }
 .sumup-group ul li a .sumup-desc {
   display: block;
   font-size: .78rem;
   font-weight: 400;
-  color: #888;
+  color: #777;
   margin-top: 2px;
   text-decoration: none;
 }
