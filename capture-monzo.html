@@ -157,7 +157,6 @@ body { font-family: archia, -apple-system, sans-serif; }
   display: none;
   pointer-events: auto;
   max-width: max-content;
-  margin: 0 auto;
   border-radius: 0 0 3px 3px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0,0,0,.12);
@@ -686,6 +685,19 @@ body { font-family: archia, -apple-system, sans-serif; }
   window.addEventListener('resize', positionPanels);
   window.addEventListener('scroll', positionPanels);
 
+  function positionPanel(btn, panel) {
+    var btnRect = btn.getBoundingClientRect();
+    var left = btnRect.left;
+    // Clamp so it doesn't overflow the right edge
+    var panelWidth = panel.offsetWidth || 700;
+    var maxLeft = window.innerWidth - panelWidth - 20;
+    left = Math.max(20, Math.min(left, maxLeft));
+    panel.style.marginLeft = '0';
+    panel.style.marginRight = '0';
+    panel.style.position = 'absolute';
+    panel.style.left = left + 'px';
+  }
+
   function closeAll() {
     clearTimeout(closeTimer);
     panels.forEach(function(p) { p.classList.remove('is-visible'); });
@@ -703,6 +715,7 @@ body { font-family: archia, -apple-system, sans-serif; }
     closeAll();
     btn.setAttribute('aria-expanded', 'true');
     panel.classList.add('is-visible');
+    positionPanel(btn, panel);
     overlay.classList.add('is-visible');
     activePanel = panel;
   }
