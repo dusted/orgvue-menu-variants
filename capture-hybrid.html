@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orgvue Menu - Hybrid (Vercel + Plaid)</title>
+<style>
+
+@font-face { font-family: arboria; src: url(fonts/arboria-book.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: arboria; src: url(fonts/arboria-medium.woff2) format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: archia; src: url(fonts/archia-regular.woff2) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: archia; src: url(fonts/archia-semibold.woff2) format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: archia, -apple-system, sans-serif; background: #fafafa; }
+
+/* ── Header (Vercel base) ── */
+.site-header { position: fixed; z-index: 20; top: 0; left: 0; width: 100%; background-color: #fff; border-bottom: 1px solid #eaeaea; }
+.site-header__container { display: flex; align-items: center; height: 64px; max-width: 1440px; margin: 0 auto; padding: 0 24px; gap: 20px; }
+.site-branding__logo { height: 30px; width: 130px; }
+.site-branding__logo .fil0 { fill: #ff3349; }
+.site-branding__logo .fil1 { fill: #333; }
+
+/* ── Nav bar ── */
+.header-menu { display: flex; flex: 1; }
+.header-menu__container { width: 100%; }
+.header-menu__list { display: flex; align-items: center; gap: 4px; margin: 0; padding: 0; list-style: none; position: relative; }
+.megamenu__item.l-0 { list-style: none; display: flex; align-items: center; }
+.megamenu__section-heading { margin: 0; line-height: 1; }
+.megamenu__section-heading h2 { font-size: inherit; margin: 0; line-height: 1; }
+
+/* ── Nav buttons (Vercel style) ── */
+.megamenu__section-button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: archia, sans-serif;
+  font-weight: 400;
+  color: #666;
+  font-size: 1rem;
+  letter-spacing: .01em;
+  padding: 8px 14px;
+  border-radius: 6px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: color .15s;
+  z-index: 1;
+}
+.megamenu__section-button::after { display: none; }
+.megamenu__section-button .chevron-down { width: 9px; height: 9px; flex-shrink: 0; opacity: .5; }
+.megamenu__section-button:hover, .megamenu__section-button[aria-expanded=true] { color: #000; }
+.header-menu__link {
+  font-family: archia, sans-serif;
+  font-weight: 400;
+  color: #666;
+  text-decoration: none;
+  font-size: 1rem;
+  letter-spacing: .01em;
+  padding: 8px 14px;
+  border-radius: 6px;
+  transition: color .15s;
+  z-index: 1;
+  position: relative;
+}
+.header-menu__link:hover { color: #000; }
+
+/* ── Sliding highlight pill ── */
+.nav-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  border-radius: 6px;
+  z-index: 0;
+  pointer-events: none;
+  transition: left .2s cubic-bezier(.4,0,.2,1), width .2s cubic-bezier(.4,0,.2,1), opacity .15s;
+  opacity: 0;
+}
+.nav-highlight.is-visible { opacity: 1; }
+
+/* ── CTA button ── */
+.megamenu__button-primary {
+  background: linear-gradient(135deg, #ff3349, #e8002a);
+  box-shadow: 0 2px 8px rgba(255,51,73,.25);
+  font-size: 1rem;
+  padding: 8px 16px;
+  border-radius: 6px;
+  text-align: center;
+}
+.megamenu__button-primary a { color: #fff !important; font-weight: 500 !important; text-decoration: none; }
+
+.page-spacer { padding-top: 65px; height: 600px; background: #fafafa; }
+
+/* ── Panels ── */
+.megamenu-panels-wrapper { position: fixed; left: 0; right: 0; z-index: 21; pointer-events: none; }
+.megamenu-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.15); z-index: 20; }
+.megamenu-overlay.is-visible { display: block; }
+
+.megamenu-panel {
+  display: none;
+  background: #fff;
+  pointer-events: auto;
+  max-width: 960px;
+  margin: 0 auto;
+  border-radius: 6px;
+  border-top: 3px solid #5a0084;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.05);
+  margin-top: 8px;
+  animation: panelIn .2s cubic-bezier(.2,.9,.3,1);
+}
+.megamenu-panel.is-visible { display: block; }
+.megamenu-panel.mega-panel--compact { max-width: max-content; }
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Standard panel columns ── */
+.h-cols { display: flex; padding: 24px 28px; gap: 28px; }
+.h-col { min-width: 140px; flex: 1; }
+
+/* Section headings: same size as items, sentence case, medium weight */
+.h-col h3 {
+  font-family: archia, sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 0 0 12px 0;
+}
+
+.h-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
+.h-col ul li a {
+  font-family: archia, sans-serif;
+  font-size: .85rem;
+  font-weight: 400;
+  color: #444;
+  text-decoration: none;
+  display: block;
+  padding: 7px 0;
+  transition: color .12s, transform .12s;
+  line-height: 1.3;
+}
+.h-col ul li a:hover { color: #000; transform: translateX(4px); }
+
+/* ── Featured sidebar ── */
+.h-featured {
+  min-width: 220px;
+  max-width: 280px;
+  padding-left: 24px;
+  border-left: 1px solid #eaeaea;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.h-featured h3 {
+  font-family: archia, sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+.h-card {
+  padding: 14px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  border: 1px solid #eaeaea;
+  text-decoration: none;
+  display: block;
+  transition: border-color .15s, box-shadow .15s;
+}
+.h-card:hover { border-color: #ccc; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+.h-card-label { font-family: archia, sans-serif; font-size: .55rem; font-weight: 600; color: #5a0084; text-transform: uppercase; letter-spacing: .8px; margin: 0 0 4px 0; }
+.h-card-title { font-family: archia, sans-serif; font-size: .78rem; font-weight: 400; color: #333; margin: 0 0 5px 0; line-height: 1.3; }
+.h-card-cta { font-family: archia, sans-serif; font-size: .7rem; color: #000; font-weight: 500; margin: 0; }
+.h-card-cta::after { content: " \2192"; }
+
+/* ── Panel footer ── */
+.h-footer {
+  display: flex;
+  gap: 24px;
+  padding: 14px 28px;
+  background: #fafafa;
+  border-top: 1px solid #eaeaea;
+}
+.h-footer a {
+  font-family: archia, sans-serif;
+  font-size: .75rem;
+  font-weight: 500;
+  color: #666;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color .1s;
+}
+.h-footer a:hover { color: #000; }
+.h-footer a::after { content: "\2192"; font-size: .65rem; }
+
+/* ════════════════════════════════════════════════
+   SOLUTIONS: Plaid progressive disclosure
+   Left category selectors | Right detail pane
+   Grey background, no icons, clearer arrows
+   ════════════════════════════════════════════════ */
+
+.plaid-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 380px;
+}
+
+/* Left pane */
+.plaid-categories {
+  background: #fff;
+  padding: 24px 0;
+  border-right: 1px solid #eaeaea;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.plaid-cat {
+  font-family: archia, sans-serif;
+  font-size: .88rem;
+  font-weight: 400;
+  color: #888;
+  padding: 12px 28px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-align: left;
+  transition: all .12s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.plaid-cat:hover {
+  color: #333;
+  background: #f5f5f5;
+}
+.plaid-cat.is-active {
+  color: #000;
+  font-weight: 600;
+  background: #f5f5f5;
+}
+/* Arrow indicator — clearer, more prominent */
+.plaid-cat-arrow {
+  font-size: 1rem;
+  color: #ccc;
+  transition: color .12s, transform .12s;
+  font-weight: 300;
+}
+.plaid-cat.is-active .plaid-cat-arrow {
+  color: #5a0084;
+  transform: translateX(2px);
+}
+.plaid-cat:hover .plaid-cat-arrow {
+  color: #999;
+}
+
+/* Right pane — grey background */
+.plaid-details {
+  background: #f5f5f5;
+  padding: 24px 32px;
+  position: relative;
+  border-radius: 0 0 6px 0;
+}
+.plaid-detail-section {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  padding: 24px 32px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .2s ease, visibility .2s;
+}
+.plaid-detail-section.is-active {
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+}
+
+/* Detail heading — sentence case, same weight as Plaid category labels */
+.plaid-detail-section h3 {
+  font-family: archia, sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-transform: none;
+  margin: 0 0 16px 0;
+}
+
+.plaid-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+.plaid-detail-item {
+  font-family: archia, sans-serif;
+  font-size: .85rem;
+  font-weight: 400;
+  color: #444;
+  text-decoration: none;
+  padding: 8px 0;
+  transition: color .12s, transform .12s;
+  display: block;
+  line-height: 1.35;
+}
+.plaid-detail-item:hover {
+  color: #000;
+  transform: translateX(4px);
+}
+.plaid-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+</style>
+
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body>
+
+<header class="site-header" style="background: #ffffff !important; background-image: none !important;">
+<div class="site-header__container">
+<div class="site-branding">
+<a href="#">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" fill-rule="evenodd" class="site-branding__logo" width="130" height="30" clip-rule="evenodd" viewBox="0 0 10792 2556">
+<path d="m9695 612-299 187c69 124 108 267 108 418 0 152-39 294-108 418l299 187 956-552c41-24 41-82 0-106l-956-552zm-159-92L8768 77c-31-18-70-6-85 26-41 82-78 167-110 253-99 268-153 558-153 861l1116-697z" class="fil0"></path>
+<path d="M8420 1216c0 303 54 593 153 861 32 87 69 171 110 253 16 32 55 43 85 26l768-443-1116-697z" class="fil0"></path>
+<path d="M7299 832c173 0 294 102 324 269h-637c33-173 146-269 313-269zm19 755c-173 0-302-110-332-286h994l3-69c0-409-283-695-689-695-393 0-670 280-670 678 0 395 288 681 692 681 263 0 481-134 609-371l-312-104c-55 102-165 165-294 165zm-6503 0c-203 0-340-148-340-368 0-222 137-368 343-368 209 0 338 143 338 373 0 211-140 362-340 362zm3-1049c-412 0-695 277-695 681 0 395 288 678 689 678 390 0 695-294 695-667 0-401-288-692-689-692zm5326 849c0 135-77 217-206 217-126 0-211-96-211-239V582h-349v804c0 168 44 288 135 371 99 91 250 140 426 140 168 0 310-47 412-132 104-88 143-192 143-379V582h-349v804zm-1556-47-280-758h-362l458 1271h360l464-1271h-357zm-1186 129c-63 74-162 118-264 118-200 0-343-157-343-376 0-211 140-362 340-362 88 0 176 38 239 99 63 66 93 159 93 297 0 96-25 176-66 225zm71-730c-110-140-233-200-412-200-382 0-637 277-637 689 0 387 253 670 601 670 184 0 332-71 448-217v129c0 239-134 376-368 376-159 0-280-55-393-176l-217 220c173 170 376 253 623 253 217 0 404-69 527-192 121-118 170-269 170-530V583h-343v156zM2111 599c-52 38-77 77-113 170V582h-349v1271h349v-612c0-121 11-176 52-233 49-71 137-115 233-115 19 0 47 3 74 5V541c-19-3-33-3-41-3-77 0-151 22-206 60z" class="fil1"></path>
+</svg>
+</a>
+</div>
+<nav class="header-menu">
+<div class="header-menu__container"><ul id="menu-mega-menu" class="megamenu header-menu__list">
+<div class="nav-highlight" id="nav-highlight"></div>
+<li class="megamenu__item l-0" style="flex-grow:1"></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-whyorgvue">Why Orgvue <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-platform">Platform <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-solutions">Solutions <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-ai">AI <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-customers">Customers <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-partners">Partners <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><button class="header-menu__link megamenu__section-button" aria-expanded="false" data-panel="panel-resources">Resources <svg class="chevron-down" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h2></li>
+<li class="megamenu__item l-0" style="flex-grow:1"></li>
+<li class="megamenu__item l-0 megamenu__item--is-section"><h2 class="megamenu__section-heading"><a href="#" class="header-menu__link megamenu__section-button" style="cursor:pointer;" data-closemega="true">Login</a></h2></li>
+<li class="megamenu__button-primary megamenu__item l-0"><a href="#">Get a demo</a></li>
+</ul></div></nav>
+</div>
+</header>
+
+<div class="megamenu-overlay" id="megamenu-overlay"></div>
+
+<div class="megamenu-panels-wrapper" id="panels-wrapper">
+
+  <!-- WHY ORGVUE -->
+  <div class="megamenu-panel" id="panel-whyorgvue">
+    <div class="h-cols">
+      <div class="h-col" style="flex:1">
+        <h3>Why Orgvue</h3>
+        <ul>
+          <li><a href="#">Platform advantages</a></li>
+          <li><a href="#">Case studies</a></li>
+        </ul>
+      </div>
+      <div class="h-col" style="flex:1">
+        <h3>Company</h3>
+        <ul>
+          <li><a href="#">Meet the team</a></li>
+          <li><a href="#">News &amp; media</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Legal</a></li>
+        </ul>
+      </div>
+      <div class="h-featured">
+        <h3>Featured</h3>
+        <a class="h-card" href="#"><p class="h-card-label">Case study</p><p class="h-card-title">How BDO leverages Orgvue</p><p class="h-card-cta">Read more</p></a>
+        <a class="h-card" href="#"><p class="h-card-label">Article</p><p class="h-card-title">Workforce planning best practices</p><p class="h-card-cta">Read more</p></a>
+      </div>
+    </div>
+    <div class="h-footer">
+      <a href="#">Book a demo</a>
+      <a href="#">Browse resources</a>
+    </div>
+  </div>
+
+  <!-- PLATFORM -->
+  <div class="megamenu-panel mega-panel--compact" id="panel-platform">
+    <div class="h-cols">
+      <div class="h-col" style="flex:1">
+        <h3>Platform</h3>
+        <ul>
+          <li><a href="#">AI in Orgvue</a></li>
+          <li><a href="#">Data integration</a></li>
+          <li><a href="#">Platform features</a></li>
+          <li><a href="#">Platform overview</a></li>
+          <li><a href="#">Security &amp; trust</a></li>
+        </ul>
+      </div>
+      <div class="h-col" style="flex:1">
+        <h3>Services</h3>
+        <ul>
+          <li><a href="#">Professional services</a></li>
+          <li><a href="#">Success packages</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOLUTIONS (Plaid progressive disclosure with grey bg) -->
+  <div class="megamenu-panel" id="panel-solutions">
+    <div class="plaid-layout">
+      <div class="plaid-categories">
+        <button class="plaid-cat is-active" data-detail="detail-challenge">By challenge <span class="plaid-cat-arrow">&#8250;</span></button>
+        <button class="plaid-cat" data-detail="detail-capability">By capability <span class="plaid-cat-arrow">&#8250;</span></button>
+        <button class="plaid-cat" data-detail="detail-role">By role <span class="plaid-cat-arrow">&#8250;</span></button>
+        <button class="plaid-cat" data-detail="detail-industry">By industry <span class="plaid-cat-arrow">&#8250;</span></button>
+      </div>
+      <div class="plaid-details">
+
+        <div class="plaid-detail-section is-active" id="detail-challenge">
+          <h3>By challenge</h3>
+          <div class="plaid-detail-grid">
+            <a class="plaid-detail-item" href="#">AI &amp; workforce</a>
+            <a class="plaid-detail-item" href="#">Cost reduction</a>
+            <a class="plaid-detail-item" href="#">Digital transformation</a>
+            <a class="plaid-detail-item" href="#">Growth &amp; expansion</a>
+            <a class="plaid-detail-item" href="#">Mergers &amp; acquisitions</a>
+            <a class="plaid-detail-item" href="#">Organizational design</a>
+            <a class="plaid-detail-item" href="#">Workforce planning</a>
+            <a class="plaid-detail-item" href="#">Workforce restructuring</a>
+          </div>
+        </div>
+
+        <div class="plaid-detail-section" id="detail-capability">
+          <h3>By capability</h3>
+          <div class="plaid-detail-grid">
+            <a class="plaid-detail-item" href="#">Activity analysis</a>
+            <a class="plaid-detail-item" href="#">Annual position planning</a>
+            <a class="plaid-detail-item" href="#">Data harmonization</a>
+            <a class="plaid-detail-item" href="#">Monitoring &amp; tracking</a>
+            <a class="plaid-detail-item" href="#">Organization analysis</a>
+            <a class="plaid-detail-item" href="#">Organizational benchmarking</a>
+            <a class="plaid-detail-item" href="#">Organization modeling</a>
+            <a class="plaid-detail-item" href="#">Skills gap analysis</a>
+            <a class="plaid-detail-item" href="#">Succession planning</a>
+            <a class="plaid-detail-item" href="#">Talent intelligence</a>
+            <a class="plaid-detail-item" href="#">Talent selection &amp; planning</a>
+          </div>
+        </div>
+
+        <div class="plaid-detail-section" id="detail-role">
+          <h3>By role</h3>
+          <div class="plaid-detail-list">
+            <a class="plaid-detail-item" href="#">C-suite</a>
+            <a class="plaid-detail-item" href="#">Finance</a>
+            <a class="plaid-detail-item" href="#">HR</a>
+            <a class="plaid-detail-item" href="#">IT leadership</a>
+            <a class="plaid-detail-item" href="#">Transformation team</a>
+          </div>
+        </div>
+
+        <div class="plaid-detail-section" id="detail-industry">
+          <h3>By industry</h3>
+          <div class="plaid-detail-grid">
+            <a class="plaid-detail-item" href="#">Consumer products</a>
+            <a class="plaid-detail-item" href="#">Energy &amp; resources</a>
+            <a class="plaid-detail-item" href="#">Financial services</a>
+            <a class="plaid-detail-item" href="#">Insurance</a>
+            <a class="plaid-detail-item" href="#">Life sciences</a>
+            <a class="plaid-detail-item" href="#">Media &amp; entertainment</a>
+            <a class="plaid-detail-item" href="#">Retail</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- AI -->
+  <div class="megamenu-panel mega-panel--compact" id="panel-ai">
+    <div class="h-cols">
+      <div class="h-col" style="flex:1">
+        <h3>AI</h3>
+        <ul>
+          <li><a href="#">AI &amp; workforce</a></li>
+          <li><a href="#">AI in Orgvue</a></li>
+          <li><a href="#">AI insights</a></li>
+        </ul>
+      </div>
+      <div class="h-featured">
+        <h3>Featured</h3>
+        <a class="h-card" href="#"><p class="h-card-label">Guide</p><p class="h-card-title">How AI is reshaping workforce planning</p><p class="h-card-cta">Read more</p></a>
+        <a class="h-card" href="#"><p class="h-card-label">Article</p><p class="h-card-title">Unlocking AI-driven insights</p><p class="h-card-cta">Read more</p></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div class="megamenu-panel mega-panel--compact" id="panel-customers">
+    <div class="h-cols">
+      <div class="h-col" style="flex:1">
+        <h3>Customers</h3>
+        <ul>
+          <li><a href="#">Advocacy program</a></li>
+          <li><a href="#">Case studies</a></li>
+          <li><a href="#">Customer portal</a></li>
+        </ul>
+      </div>
+      <div class="h-featured">
+        <h3>Featured</h3>
+        <a class="h-card" href="#"><p class="h-card-label">Case study</p><p class="h-card-title">How BDO leverages Orgvue</p><p class="h-card-cta">Read more</p></a>
+        <a class="h-card" href="#"><p class="h-card-label">Case study</p><p class="h-card-title">Financial institution drives improvement with activity data</p><p class="h-card-cta">Read more</p></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTNERS -->
+  <div class="megamenu-panel mega-panel--compact" id="panel-partners">
+    <div class="h-cols">
+      <div class="h-col" style="flex:1">
+        <h3>Partners</h3>
+        <ul>
+          <li><a href="#">Our partners</a></li>
+          <li><a href="#">Become a partner</a></li>
+        </ul>
+      </div>
+      <div class="h-featured">
+        <h3>Featured</h3>
+        <a class="h-card" href="#"><p class="h-card-label">Partnership</p><p class="h-card-title">Join the Orgvue partner ecosystem</p><p class="h-card-cta">Learn more</p></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="megamenu-panel mega-panel--compact" id="panel-resources">
+    <div class="h-cols">
+      <div class="h-col" style="flex:1">
+        <h3>Resources</h3>
+        <ul>
+          <li><a href="#">Articles</a></li>
+          <li><a href="#">Ebooks &amp; guides</a></li>
+          <li><a href="#">Self-assessments</a></li>
+          <li><a href="#">Videos</a></li>
+          <li><a href="#">Webinars &amp; events</a></li>
+          <li><a href="#">Whitepapers &amp; reports</a></li>
+        </ul>
+      </div>
+      <div class="h-featured">
+        <h3>Featured</h3>
+        <a class="h-card" href="#"><p class="h-card-label">Article</p><p class="h-card-title">8 Organizational Design Types</p><p class="h-card-cta">Read article</p></a>
+        <a class="h-card" href="#"><p class="h-card-label">Article</p><p class="h-card-title">RACI Framework Complexity</p><p class="h-card-cta">Read article</p></a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-spacer"></div>
+
+<script>
+(function() {
+  var buttons = document.querySelectorAll('.megamenu__section-button[data-panel]');
+  var allNavItems = document.querySelectorAll('.megamenu__section-button, .header-menu__link');
+  var overlay = document.getElementById('megamenu-overlay');
+  var wrapper = document.getElementById('panels-wrapper');
+  var panels = document.querySelectorAll('.megamenu-panel');
+  var highlight = document.getElementById('nav-highlight');
+  var navList = document.getElementById('menu-mega-menu');
+  var activePanel = null;
+
+  function positionWrapper() {
+    var header = document.querySelector('.site-header');
+    if (header) {
+      wrapper.style.top = header.getBoundingClientRect().bottom + 'px';
+      overlay.style.top = header.getBoundingClientRect().bottom + 'px';
+    }
+  }
+  positionWrapper();
+  window.addEventListener('resize', positionWrapper);
+  window.addEventListener('scroll', positionWrapper);
+
+  // Sliding highlight pill
+  function moveHighlight(el) {
+    var listRect = navList.getBoundingClientRect();
+    var elRect = el.getBoundingClientRect();
+    highlight.style.left = (elRect.left - listRect.left) + 'px';
+    highlight.style.width = elRect.width + 'px';
+    highlight.classList.add('is-visible');
+  }
+  function hideHighlight() { highlight.classList.remove('is-visible'); }
+  allNavItems.forEach(function(item) {
+    item.addEventListener('mouseenter', function() { moveHighlight(item); });
+  });
+  navList.addEventListener('mouseleave', function() { hideHighlight(); });
+
+  // Panel open/close
+  function closeAll() {
+    panels.forEach(function(p) { p.classList.remove('is-visible'); });
+    buttons.forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+    overlay.classList.remove('is-visible');
+    activePanel = null;
+  }
+  function openPanel(btn) {
+    var panelId = btn.getAttribute('data-panel');
+    var panel = document.getElementById(panelId);
+    if (!panel) return;
+    if (activePanel === panel) { closeAll(); return; }
+    closeAll();
+    btn.setAttribute('aria-expanded', 'true');
+    panel.classList.add('is-visible');
+    overlay.classList.add('is-visible');
+    activePanel = panel;
+  }
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); openPanel(btn); });
+    btn.addEventListener('mouseenter', function() { openPanel(btn); });
+    btn.addEventListener('mouseleave', function() { /* disabled for capture */ });
+  });
+  panels.forEach(function(p) { p.addEventListener('mouseleave', function() { /* disabled */ }); });
+  overlay.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAll(); });
+
+  // Plaid progressive disclosure
+  var cats = document.querySelectorAll('.plaid-cat');
+  var detailSections = document.querySelectorAll('.plaid-detail-section');
+  cats.forEach(function(cat) {
+    function activate() {
+      var target = cat.getAttribute('data-detail');
+      cats.forEach(function(c) { c.classList.remove('is-active'); });
+      detailSections.forEach(function(d) { d.classList.remove('is-active'); });
+      cat.classList.add('is-active');
+      var section = document.getElementById(target);
+      if (section) section.classList.add('is-active');
+    }
+    cat.addEventListener('mouseenter', activate);
+    cat.addEventListener('click', activate);
+  });
+})();
+</script>
+
+<script>
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    var btn = document.querySelector('[data-panel="panel-solutions"]');
+    if (btn) btn.click();
+  }, 800);
+});
+</script>
+</body>
+</html>
